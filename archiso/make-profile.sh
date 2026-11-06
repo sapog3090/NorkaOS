@@ -9,9 +9,22 @@ units="$root/etc/systemd/system"
 
 cp -a /usr/share/archiso/configs/releng "$dst"
 
-# Пакеты: гостевые утилиты с графикой конфликтуют с версией nox, cloud-init живой системе не нужен
-sed -i -e '/^virtualbox-guest-utils-nox$/d' -e '/^cloud-init$/d' "$dst/packages.x86_64"
+# Пакеты: гостевые утилиты с графикой конфликтуют с версией nox, cloud-init живой системе не нужен,
+# ядро заменяем на CachyOS, а broadcom-wl собран под штатное ядро и потянул бы его обратно
+sed -i \
+  -e '/^virtualbox-guest-utils-nox$/d' \
+  -e '/^cloud-init$/d' \
+  -e '/^linux$/d' \
+  -e '/^broadcom-wl$/d' \
+  "$dst/packages.x86_64"
 grep -v -e '^#' -e '^$' "$here/packages.txt" >> "$dst/packages.x86_64"
+
+# Репозитории: живая система читает снимок из norkaos-mirrorlist, сборка берёт ту же дату
+snapshot="$(sed -n 's/^pkgver=//p' "$here/../pkgbuilds/norkaos-mirrorlist/PKGBUILD")"
+snapshot="${snapshot:0:4}/${snapshot:4:2}/${snapshot:6:2}"
+sed -i '/^\[core\]/i [norkaos]\nSigLevel = Required DatabaseRequired\nServer = https://github.com/sapog3090/NorkaOS/releases/download/repo\n' "$dst/pacman.conf"
+sed 's|^Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/norkaos-snapshot|' "$dst/pacman.conf" > "$root/etc/pacman.conf"
+sed -i "s|^Include = /etc/pacman.d/mirrorlist|Server = https://archive.archlinux.org/repos/$snapshot/\$repo/os/\$arch|" "$dst/pacman.conf"
 
 cp -a "$here/airootfs/." "$root/"
 
@@ -25,7 +38,9 @@ sed -i \
   "$dst/profiledef.sh"
 find "$dst/syslinux" "$dst/efiboot" "$dst/grub" -type f \( -name '*.cfg' -o -name '*.conf' \) -exec sed -i \
   -e 's/Arch Linux install medium/NorkaOS Live/g' \
-  -e 's/install Arch Linux/try NorkaOS/g' {} +
+  -e 's/install Arch Linux/try NorkaOS/g' \
+  -e 's/vmlinuz-linux/vmlinuz-linux-cachyos/g' \
+  -e 's/initramfs-linux\.img/initramfs-linux-cachyos.img/g' {} +
 echo norka > "$root/etc/hostname"
 : > "$root/etc/motd"
 

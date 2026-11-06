@@ -1,0 +1,10 @@
+post_upgrade() {
+  # Живой образ собирается без связки ключей: там это сделает pacman-init при загрузке
+  if usr/bin/pacman-key -l >/dev/null 2>&1; then
+    usr/bin/pacman-key --populate norkaos
+  fi
+}
+
+post_install() {
+  post_upgrade
+}

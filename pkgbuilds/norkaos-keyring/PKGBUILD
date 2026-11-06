@@ -1,0 +1,15 @@
+pkgname=norkaos-keyring
+pkgver=1
+pkgrel=1
+pkgdesc='Ключ подписи пакетов NorkaOS'
+arch=('any')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+install=norkaos-keyring.install
+source=('norkaos.gpg' 'norkaos-trusted')
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+  install -Dm644 norkaos.gpg "$pkgdir/usr/share/pacman/keyrings/norkaos.gpg"
+  install -Dm644 norkaos-trusted "$pkgdir/usr/share/pacman/keyrings/norkaos-trusted"
+}

@@ -1,0 +1,15 @@
+# Новый снимок Arch: поменять pkgver на дату проверенного снимка
+pkgname=norkaos-mirrorlist
+pkgver=20261104
+pkgrel=1
+pkgdesc='Снимок Arch, на который смотрит NorkaOS'
+arch=('any')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+
+package() {
+  local path="${pkgver:0:4}/${pkgver:4:2}/${pkgver:6:2}"
+  install -d "$pkgdir/etc/pacman.d"
+  echo "Server = https://archive.archlinux.org/repos/$path/\$repo/os/\$arch" \
+    > "$pkgdir/etc/pacman.d/norkaos-snapshot"
+}

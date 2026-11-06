@@ -11,3 +11,4 @@ work/
 *.gpg
 *.key
 private/
+!pkgbuilds/norkaos-keyring/norkaos.gpg

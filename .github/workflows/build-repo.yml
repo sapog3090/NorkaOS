@@ -1,0 +1,41 @@
+name: Сборка репозитория
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Поставить инструменты
+        run: pacman -Syu --noconfirm base-devel github-cli
+
+      - name: Собрать и подписать пакеты
+        env:
+          NORKA_SIGNING_KEY: ${{ secrets.NORKA_SIGNING_KEY }}
+        run: bash pkgbuilds/build-repo.sh repo-out
+
+      - name: Выложить в релиз repo
+        run: |
+          gh release view repo --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
+            gh release create repo --repo "$GITHUB_REPOSITORY" --title "Репозиторий пакетов" \
+              --notes "Служебный релиз: отсюда pacman получает пакеты NorkaOS." --prerelease
+          gh release upload repo repo-out/* --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: Проверить установку из репозитория
+        run: |
+          fpr="$(cut -d: -f1 pkgbuilds/norkaos-keyring/norkaos-trusted)"
+          pacman-key --add pkgbuilds/norkaos-keyring/norkaos.gpg
+          pacman-key --lsign-key "$fpr"
+          sed -i '/^\[core\]/i [norkaos]\nSigLevel = Required DatabaseRequired\nServer = https://github.com/sapog3090/NorkaOS/releases/download/repo\n' /etc/pacman.conf
+          pacman -Sy --noconfirm norkaos-keyring norkaos-mirrorlist norkaos-tweaks
+          cat /etc/pacman.d/norkaos-snapshot

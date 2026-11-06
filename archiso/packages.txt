@@ -1,4 +1,8 @@
 # Пакеты NorkaOS поверх штатного списка releng
+linux-cachyos
+norkaos-keyring
+norkaos-mirrorlist
+norkaos-tweaks
 plasma-desktop
 plasma-nm
 plasma-pa

@@ -15,6 +15,11 @@ jobs:
       - name: Поставить archiso
         run: pacman -Syu --noconfirm archiso
 
+      - name: Доверять ключу NorkaOS
+        run: |
+          pacman-key --add pkgbuilds/norkaos-keyring/norkaos.gpg
+          pacman-key --lsign-key "$(cut -d: -f1 pkgbuilds/norkaos-keyring/norkaos-trusted)"
+
       - name: Собрать образ
         run: |
           bash archiso/make-profile.sh profile
