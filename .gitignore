@@ -1,0 +1,12 @@
+# Результаты сборки archiso
+out/
+work/
+*.iso
+*.iso.sha256
+
+# Пакеты и ключи: приватные ключи подписи в репозиторий не попадают
+*.pkg.tar.zst
+*.pkg.tar.zst.sig
+*.gpg
+*.key
+private/

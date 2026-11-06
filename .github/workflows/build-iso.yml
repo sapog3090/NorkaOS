@@ -1,0 +1,32 @@
+name: Сборка ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Поставить archiso
+        run: pacman -Syu --noconfirm archiso
+
+      # Этап 0: штатный профиль releng без изменений, свой появится на этапе 1
+      - name: Собрать образ
+        run: |
+          cp -r /usr/share/archiso/configs/releng profile
+          mkarchiso -v -w work -o out profile
+
+      - name: Посчитать SHA-256
+        run: cd out && sha256sum *.iso > SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iso
+          path: out/*
+          compression-level: 0
+          retention-days: 7
