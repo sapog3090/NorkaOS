@@ -17,6 +17,7 @@ jobs:
 
       - name: Доверять ключу NorkaOS
         run: |
+          pacman-key --init
           pacman-key --add pkgbuilds/norkaos-keyring/norkaos.gpg
           pacman-key --lsign-key "$(cut -d: -f1 pkgbuilds/norkaos-keyring/norkaos-trusted)"
 

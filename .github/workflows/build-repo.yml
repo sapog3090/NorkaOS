@@ -34,6 +34,7 @@ jobs:
       - name: Проверить установку из репозитория
         run: |
           fpr="$(cut -d: -f1 pkgbuilds/norkaos-keyring/norkaos-trusted)"
+          pacman-key --init
           pacman-key --add pkgbuilds/norkaos-keyring/norkaos.gpg
           pacman-key --lsign-key "$fpr"
           sed -i '/^\[core\]/i [norkaos]\nSigLevel = Required DatabaseRequired\nServer = https://github.com/sapog3090/NorkaOS/releases/download/repo\n' /etc/pacman.conf
