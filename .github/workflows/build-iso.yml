@@ -15,10 +15,9 @@ jobs:
       - name: Поставить archiso
         run: pacman -Syu --noconfirm archiso
 
-      # Этап 0: штатный профиль releng без изменений, свой появится на этапе 1
       - name: Собрать образ
         run: |
-          cp -r /usr/share/archiso/configs/releng profile
+          bash archiso/make-profile.sh profile
           mkarchiso -v -w work -o out profile
 
       - name: Посчитать SHA-256

@@ -1,6 +1,7 @@
 # Результаты сборки archiso
 out/
 work/
+/profile/
 *.iso
 *.iso.sha256
 

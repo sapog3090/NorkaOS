@@ -1,0 +1,26 @@
+# Пакеты NorkaOS поверх штатного списка releng
+plasma-desktop
+plasma-nm
+plasma-pa
+kscreen
+powerdevil
+bluedevil
+breeze-gtk
+kde-gtk-config
+xdg-desktop-portal-kde
+sddm
+dolphin
+ark
+kitty
+firefox
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+networkmanager
+mesa
+vulkan-radeon
+sudo
+noto-fonts
+noto-fonts-emoji
+virtualbox-guest-utils
