@@ -1,0 +1,12 @@
+# Сразу после снимка snap-pac (05-snap-pac-pre) копируем ядро, с которым этот снимок загрузится
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Saving the kernel for the boot menu snapshot...
+When = PreTransaction
+Exec = /usr/bin/norka-snapshots save

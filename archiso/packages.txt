@@ -10,6 +10,7 @@ norkaos-plymouth
 fastfetch
 norkaos-installer
 limine
+norkaos-snapshots
 plasma-desktop
 plasma-nm
 plasma-pa

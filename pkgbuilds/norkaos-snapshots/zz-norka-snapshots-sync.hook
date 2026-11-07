@@ -1,0 +1,12 @@
+# После обновления и снимка snap-pac (zz-snap-pac-post) обновляем пункты снимков в меню Limine
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Adding snapshots to the boot menu...
+When = PostTransaction
+Exec = /usr/bin/norka-snapshots sync

@@ -1,0 +1,12 @@
+#!/usr/bin/ash
+
+run_latehook() {
+    local root_mnt=/new_root
+    [ "$(btrfs property get "$root_mnt" ro 2>/dev/null)" = "ro=true" ] || return 0
+    local lower=/norka_lower ram=/norka_ram
+    mkdir -p "$lower" "$ram"
+    mount --move "$root_mnt" "$lower"
+    mount -t tmpfs -o size=50% norka_ram "$ram"
+    mkdir -p "$ram/upper" "$ram/work"
+    mount -t overlay -o "lowerdir=$lower,upperdir=$ram/upper,workdir=$ram/work" norka_snapshot "$root_mnt"
+}

@@ -126,8 +126,14 @@ arch-chroot "$target" userdel norka 2>/dev/null
 rm -f "$target/etc/machine-id"
 # Свой initramfs: видеодрайвер и plymouth для загрузочного экрана с Норкой
 cat > "$target/etc/mkinitcpio.conf.d/norkaos.conf" <<'EOF'
-HOOKS=(base udev autodetect microcode modconf kms plymouth keyboard keymap block filesystems fsck)
+HOOKS=(base udev autodetect microcode modconf kms plymouth keyboard keymap block filesystems fsck norka-overlay)
 EOF
+# Установщик в установленной системе не нужен. Убираем до настройки снимков, чтобы не было лишнего снимка
+arch-chroot "$target" pacman -Rns --noconfirm norkaos-installer >/dev/null 2>&1 || true
+# Снимки перед обновлениями: подтом @snapshots уже смонтирован в /.snapshots
+install -Dm644 "$target/usr/share/norkaos/snapper-root" "$target/etc/snapper/configs/root"
+echo 'SNAPPER_CONFIGS="root"' > "$target/etc/conf.d/snapper"
+chmod 750 "$target/.snapshots"
 echo "PROGRESS 73"
 
 say "Настраиваю систему"
@@ -211,7 +217,6 @@ fi
 echo "PROGRESS 97"
 
 say "Заканчиваю"
-arch-chroot "$target" pacman -Rns --noconfirm norkaos-installer >/dev/null 2>&1 || true
 sync
 umount -R "$target"
 trap - EXIT

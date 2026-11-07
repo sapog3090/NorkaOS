@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Откат системы на снимок: sudo norka-rollback 12
+# Текущий корень @ уезжает в @broken-<дата>, из снимка делается новый @, ядро возвращается то, что было при снимке.
+# Домашняя папка (@home) не трогается. После отката нужна перезагрузка
+set -euo pipefail
+
+number="${1:?номер снимка: snapper list}"
+kernel=linux-cachyos
+((EUID == 0)) || { echo "нужен root" >&2; exit 1; }
+
+device="$(findmnt -no SOURCE /home | sed 's/\[.*//')"
+top="$(mktemp -d)"
+mount -o subvolid=5 "$device" "$top"
+trap 'umount "$top"; rmdir "$top"' EXIT
+
+[[ -d "$top/@snapshots/$number/snapshot" ]] || { echo "нет снимка $number" >&2; exit 1; }
+[[ -f "/boot/snapshots/$number/vmlinuz-$kernel" ]] || { echo "нет копии ядра для снимка $number" >&2; exit 1; }
+
+broken="@broken-$(date +%Y%m%d-%H%M%S)"
+mv "$top/@" "$top/$broken"
+btrfs subvolume snapshot "$top/@snapshots/$number/snapshot" "$top/@" >/dev/null
+cp "/boot/snapshots/$number/vmlinuz-$kernel" "/boot/snapshots/$number/initramfs-$kernel.img" /boot/
+
+echo "Готово: система будет как в снимке $number. Старый корень сохранён как $broken."
+echo "Перезагрузи компьютер."

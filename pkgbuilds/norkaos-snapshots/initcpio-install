@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Снимок Btrfs только для чтения грузится со слоем в памяти поверх: система пишет, снимок не меняется
+
+build() {
+    add_module overlay
+    add_binary btrfs
+    add_runscript
+}
+
+help() {
+    echo "Boots read-only Btrfs snapshots with a tmpfs overlay on top"
+}
