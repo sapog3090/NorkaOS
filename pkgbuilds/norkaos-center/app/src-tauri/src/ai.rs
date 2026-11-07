@@ -109,6 +109,26 @@ pub fn ai_pull(app: AppHandle, id: String, base: String, system: String) -> Resu
     Ok(())
 }
 
+/// Промпт Норки у уже скачанной модели: если он устарел (обновили NorkaOS), пересоздаём копию без скачивания
+#[tauri::command]
+pub fn ai_refresh_prompt(id: String, base: String, system: String) -> Result<bool, String> {
+    let model = format!("norka-{id}");
+    let shown: Value = agent(30)
+        .post(&format!("{OLLAMA}/api/show"))
+        .send_json(json!({ "model": model }))
+        .map_err(|e| e.to_string())?
+        .into_json()
+        .map_err(|e| e.to_string())?;
+    if shown["system"].as_str() == Some(system.as_str()) {
+        return Ok(false);
+    }
+    agent(600)
+        .post(&format!("{OLLAMA}/api/create"))
+        .send_json(json!({ "model": model, "from": base, "system": system, "stream": false }))
+        .map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
 #[tauri::command]
 pub fn ai_delete(id: String, base: String) -> Result<(), String> {
     for model in [format!("norka-{id}"), base] {

@@ -69,13 +69,22 @@ async function loadHelper() {
     list.appendChild(row);
   }
   $("open-chat").disabled = !aiStatus.models.some((n) => n.startsWith("norka-"));
+  if (aiStatus.running && !refreshPrompts.done) { refreshPrompts.done = true; refreshPrompts(); }
 }
+
+const systemPrompt = () => PROMPT.replace("%LANG%", LANG_NAMES[document.documentElement.lang] || "English");
 
 async function pull(m) {
   pulling.add(m.id);
   loadHelper();
-  const lang = LANG_NAMES[document.documentElement.lang] || "English";
-  await invoke("ai_pull", { id: m.id, base: m.base, system: PROMPT.replace("%LANG%", lang) });
+  await invoke("ai_pull", { id: m.id, base: m.base, system: systemPrompt() });
+}
+
+// После обновления NorkaOS промпт мог поменяться: подтягиваем его в уже скачанные модели
+async function refreshPrompts() {
+  for (const m of MODELS.filter(has)) {
+    try { await invoke("ai_refresh_prompt", { id: m.id, base: m.base, system: systemPrompt() }); } catch (e) { /* модель занята или движок выключен */ }
+  }
 }
 
 listen("ai-pull", async ({ payload }) => {
@@ -128,6 +137,7 @@ async function loadChat() {
   const available = aiStatus.models.filter((n) => n.startsWith("norka-"));
   chatModel = available.find((n) => n === saved || n.startsWith(`${saved}:`)) || available[0] || "";
   const ready = aiStatus.running && chatModel;
+  if (ready && !refreshPrompts.done) { refreshPrompts.done = true; await refreshPrompts(); }
   $("chat-empty").textContent = !aiStatus.installed || !chatModel ? t("chat_no_model") : !aiStatus.running ? t("chat_not_running") : "";
   $("chat-empty").hidden = !!ready;
   $("chat-input").disabled = !ready;
