@@ -12,3 +12,4 @@ work/
 *.key
 private/
 !pkgbuilds/norkaos-keyring/norkaos.gpg
+art/cursor/preview-*.png

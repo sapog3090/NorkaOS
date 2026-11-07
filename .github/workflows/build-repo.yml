@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Поставить инструменты
-        run: pacman -Syu --noconfirm base-devel github-cli
+        run: pacman -Syu --noconfirm base-devel github-cli python librsvg xorg-xcursorgen
 
       - name: Собрать и подписать пакеты
         env:

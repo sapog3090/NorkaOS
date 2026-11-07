@@ -7,6 +7,9 @@ Theme=breeze-dark
 [kdeglobals][KDE]
 widgetStyle=Breeze
 
+[kcminputrc][Mouse]
+cursorTheme=NorkaOS-Paw
+
 [plasmarc][Theme]
 name=default
 

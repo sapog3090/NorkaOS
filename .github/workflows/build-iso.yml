@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Поставить archiso
-        run: pacman -Syu --noconfirm archiso
+        run: pacman -Syu --noconfirm archiso grub noto-fonts
 
       - name: Доверять ключу NorkaOS
         run: |

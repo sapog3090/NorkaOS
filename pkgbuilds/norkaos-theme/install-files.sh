@@ -18,11 +18,14 @@ install -Dm644 art/logo/norka-icon.svg "$share/icons/hicolor/scalable/apps/norka
 install -Dm644 art/logo/norka-symbolic.svg "$share/icons/hicolor/symbolic/apps/norkaos-symbolic.svg"
 install -Dm644 art/logo/norka-logo.svg "$share/pixmaps/norkaos-logo.svg"
 
+# Курсоры рисуются при сборке: нужны python, librsvg и xorg-xcursorgen
+python art/cursor/make.py "$share/icons"
+
 # Цвета схемы читаются из kdeglobals, поэтому файл схемы дописывается сюда целиком
 install -d "$dest/etc/xdg"
 cat kdeglobals.head NorkaOS.colors > "$dest/etc/xdg/kdeglobals"
 chmod 644 "$dest/etc/xdg/kdeglobals"
-install -m644 xdg/plasmarc xdg/ksplashrc xdg/kscreenlockerrc "$dest/etc/xdg/"
+install -m644 xdg/plasmarc xdg/ksplashrc xdg/kscreenlockerrc xdg/kcminputrc "$dest/etc/xdg/"
 
 # Экран входа: тема breeze из plasma-desktop, фон наш
 install -Dm644 sddm/10-norkaos.conf "$dest/etc/sddm.conf.d/10-norkaos.conf"

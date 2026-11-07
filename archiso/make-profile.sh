@@ -28,6 +28,37 @@ sed -i "s|^Include = /etc/pacman.d/mirrorlist|Server = https://archive.archlinux
 
 cp -a "$here/airootfs/." "$root/"
 
+# Меню загрузки UEFI: systemd-boot умеет только текст, поэтому GRUB с темой NorkaOS
+sed -i "s/'uefi.systemd-boot'/'uefi.grub'/" "$dst/profiledef.sh"
+rm -rf "$dst/efiboot"
+theme="$dst/grub/themes/norkaos"
+cp -r "$here/grub/themes" "$dst/grub/"
+cp "$here/../art/boot/grub-background.png" "$theme/background.png"
+cp "$here/../art/boot/select_c.png" "$theme/"
+glyphs='0x20-0x7E,0xA0-0x17F,0x400-0x4FF,0x2010-0x2027'
+noto=/usr/share/fonts/noto
+grub-mkfont -r "$glyphs" -s 18 -o "$theme/norka-18.pf2" "$noto/NotoSans-Regular.ttf"
+grub-mkfont -r "$glyphs" -s 24 -o "$theme/norka-24.pf2" "$noto/NotoSans-Regular.ttf"
+grub-mkfont -r "$glyphs" -s 24 -o "$theme/norka-bold-24.pf2" "$noto/NotoSans-Bold.ttf"
+sed -i -e '/^    terminal_output console$/{r '"$here/boot/grub-theme.cfg" -e 'd}' "$dst/grub/grub.cfg"
+# Пункт «безопасная графика» встаёт перед пунктом с экранным диктором
+awk -v f="$here/boot/grub-safe.cfg" '/with speakup screen reader/ { while ((getline l < f) > 0) print l } { print }' \
+  "$dst/grub/grub.cfg" > "$dst/grub/grub.cfg.new"
+mv "$dst/grub/grub.cfg.new" "$dst/grub/grub.cfg"
+# Короткие названия пунктов: длинные не влезают в меню на маленьком экране
+sed -i   -e 's/ (%ARCH%, ${archiso_platform})"/"/'   -e 's/with speakup screen reader/with screen reader/'   -e "s/'Run Memtest86+ (RAM test)'/'Memory test'/"   -e "s/'UEFI Firmware Settings'/'Firmware settings'/"   -e "s/'System shutdown'/'Shut down'/"   -e "s/'System restart'/'Restart'/"   "$dst/grub/grub.cfg"
+
+# Меню загрузки BIOS: наш фон и фиолетовая подсветка
+cp "$here/../art/boot/syslinux-splash.png" "$dst/syslinux/splash.png"
+sed -i \
+  -e 's/^MENU TITLE Arch Linux$/MENU TITLE NorkaOS/' \
+  -e 's/^MENU COLOR sel .*/MENU COLOR sel          7;37;40 #ffffffff #a07a4fd0 all/' \
+  -e 's/^MENU COLOR title .*/MENU COLOR title        1;36;44 #ffc9b8ea #00000000 std/' \
+  "$dst/syslinux/archiso_head.cfg"
+awk -v f="$here/boot/syslinux-safe.cfg" '/^# Accessibility boot option$/ { while ((getline l < f) > 0) print l } { print }' \
+  "$dst/syslinux/archiso_sys-linux.cfg" > "$dst/syslinux/archiso_sys-linux.cfg.new"
+mv "$dst/syslinux/archiso_sys-linux.cfg.new" "$dst/syslinux/archiso_sys-linux.cfg"
+
 # Имя системы
 sed -i \
   -e 's/^iso_name=.*/iso_name="norkaos"/' \
@@ -36,7 +67,7 @@ sed -i \
   -e 's/^iso_application=.*/iso_application="NorkaOS Live"/' \
   -e '/^file_permissions=(/a\  ["/etc/gshadow"]="0:0:400"\n  ["/etc/sudoers.d/norka-live"]="0:0:440"\n  ["/home/norka/"]="1000:1000:750"' \
   "$dst/profiledef.sh"
-find "$dst/syslinux" "$dst/efiboot" "$dst/grub" -type f \( -name '*.cfg' -o -name '*.conf' \) -exec sed -i \
+find "$dst/syslinux" "$dst/grub" -type f \( -name '*.cfg' -o -name '*.conf' \) -exec sed -i \
   -e 's/Arch Linux install medium/NorkaOS Live/g' \
   -e 's/install Arch Linux/try NorkaOS/g' \
   -e 's/vmlinuz-linux/vmlinuz-linux-cachyos/g' \

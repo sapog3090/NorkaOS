@@ -1,0 +1,34 @@
+# Тема меню загрузки NorkaOS. Фон, подсветка и шрифты кладёт сюда make-profile.sh
+title-text: ""
+desktop-image: "background.png"
+desktop-image-scale-method: "crop"
+terminal-font: "Noto Sans Regular 18"
+
++ boot_menu {
+  left = 25%
+  width = 50%
+  top = 44%
+  height = 42%
+  item_font = "Noto Sans Regular 24"
+  selected_item_font = "Noto Sans Bold 24"
+  item_color = "#c9b8ea"
+  selected_item_color = "#ffffff"
+  item_height = 46
+  item_padding = 16
+  item_spacing = 6
+  icon_width = 0
+  icon_height = 0
+  selected_item_pixmap_style = "select_*.png"
+  scrollbar = false
+}
+
++ label {
+  id = "__timeout__"
+  text = "Starting in %d s"
+  left = 0
+  width = 100%
+  top = 90%
+  align = "center"
+  color = "#8f7cb3"
+  font = "Noto Sans Regular 18"
+}
