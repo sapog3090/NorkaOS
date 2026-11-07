@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+
+msgid "Hi! I'm Norka."
+msgstr "Cześć! Jestem Norka."
+
+msgid "Press Meta+N and I'll hide."
+msgstr "Naciśnij Meta+N, a się schowam."
+
+msgid "Is it snack time yet?"
+msgstr "Czy to już pora na przekąskę?"
+
+msgid "Your files are safe in my burrow."
+msgstr "Twoje pliki są bezpieczne w mojej norce."
+
+msgid "I like it when you click me."
+msgstr "Lubię, kiedy mnie klikasz."
+
+msgid "Try a right click on the desktop."
+msgstr "Spróbuj kliknąć pulpit prawym przyciskiem."
+
+msgid "Zzz… five more minutes…"
+msgstr "Zzz… jeszcze pięć minutek…"
+
+msgid "It's so hot in here! Your computer is working hard."
+msgstr "Ale gorąco! Komputer ciężko pracuje."

@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: uk\n"
+
+msgid "Hi! I'm Norka."
+msgstr "Привіт! Я Норка."
+
+msgid "Press Meta+N and I'll hide."
+msgstr "Натисни Meta+N, і я сховаюся."
+
+msgid "Is it snack time yet?"
+msgstr "Вже час перекусити?"
+
+msgid "Your files are safe in my burrow."
+msgstr "Твої файли в безпеці в моїй норі."
+
+msgid "I like it when you click me."
+msgstr "Мені подобається, коли ти на мене натискаєш."
+
+msgid "Try a right click on the desktop."
+msgstr "Спробуй натиснути правою кнопкою на робочий стіл."
+
+msgid "Zzz… five more minutes…"
+msgstr "Хрр… ще п'ять хвилиночок…"
+
+msgid "It's so hot in here! Your computer is working hard."
+msgstr "Як спекотно! Комп'ютер дуже старається."

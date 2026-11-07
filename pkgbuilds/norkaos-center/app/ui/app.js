@@ -27,7 +27,7 @@ function t(key, ...args) {
 }
 
 async function loadStrings() {
-  const lang = navigator.language.startsWith("ru") ? "ru" : "en";
+  const lang = ["ru", "uk", "pl"].find((l) => navigator.language.startsWith(l)) || "en";
   strings = await (await fetch(`i18n/${lang}.json`)).json();
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });

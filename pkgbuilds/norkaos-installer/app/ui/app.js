@@ -5,7 +5,7 @@ const { listen } = window.__TAURI__.event;
 const $ = (id) => document.getElementById(id);
 const pages = ["hello", "disk", "user", "confirm", "install"];
 const MIN_FREE = 25 * 1024 ** 3;
-const locales = { en: "en_US.UTF-8", ru: "ru_RU.UTF-8" };
+const locales = { en: "en_US.UTF-8", ru: "ru_RU.UTF-8", uk: "uk_UA.UTF-8", pl: "pl_PL.UTF-8" };
 
 let strings = {};
 let disks = [];
@@ -172,7 +172,7 @@ $("restart").onclick = () => invoke("reboot");
 $("language").onchange = () => setLanguage($("language").value);
 
 (async () => {
-  const lang = navigator.language.startsWith("ru") ? "ru" : "en";
+  const lang = Object.keys(locales).find((l) => navigator.language.startsWith(l)) || "en";
   $("language").value = lang;
   await setLanguage(lang);
   disks = await invoke("list_disks");

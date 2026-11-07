@@ -1,6 +1,6 @@
 pkgname=norkaos-center
 pkgver=1
-pkgrel=2
+pkgrel=3
 pkgdesc='Норка Центр и Норка Привет: настройки NorkaOS, программы и снимки'
 arch=('x86_64')
 url='https://github.com/sapog3090/NorkaOS'

@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+
+msgid "Hi, %1!"
+msgstr "Cześć, %1!"
+
+msgid "What shall we do?"
+msgstr "Co robimy?"
+
+msgid "Search apps, files, settings…"
+msgstr "Szukaj programów, plików, ustawień…"
+
+msgid "Pinned"
+msgstr "Przypięte"
+
+msgid "All apps"
+msgstr "Wszystkie programy"
+
+msgid "Norka couldn't find anything"
+msgstr "Norka nic nie znalazła"
+
+msgid "Back"
+msgstr "Wstecz"
+
+msgid "Lock"
+msgstr "Zablokuj"
+
+msgid "Log out"
+msgstr "Wyloguj"
+
+msgid "Restart"
+msgstr "Uruchom ponownie"
+
+msgid "Shut down"
+msgstr "Wyłącz"
