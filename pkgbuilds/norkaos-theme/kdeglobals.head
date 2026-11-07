@@ -5,3 +5,6 @@ Theme=breeze-dark
 LookAndFeelPackage=org.norkaos.desktop
 widgetStyle=Breeze
 
+
+[Sounds]
+Theme=norkaos

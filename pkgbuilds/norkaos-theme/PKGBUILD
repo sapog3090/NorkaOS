@@ -1,12 +1,12 @@
 pkgname=norkaos-theme
-pkgver=6
+pkgver=7
 pkgrel=1
 pkgdesc='Облик NorkaOS: цвета, обои, значок, настройки Plasma'
 arch=('any')
 url='https://github.com/sapog3090/NorkaOS'
 license=('GPL-3.0-only')
-depends=('plasma-desktop' 'breeze-cursors' 'norkaos-shell')
-makedepends=('python' 'librsvg' 'xorg-xcursorgen')
+depends=('plasma-desktop' 'breeze-cursors' 'norkaos-shell' 'ocean-sound-theme')
+makedepends=('python' 'python-numpy' 'vorbis-tools' 'librsvg' 'xorg-xcursorgen')
 
 # Файлы лежат рядом с PKGBUILD, build-repo.sh кладёт сюда же папку art
 package() {

@@ -21,6 +21,9 @@ install -Dm644 art/logo/norka-logo.svg "$share/pixmaps/norkaos-logo.svg"
 # Курсоры рисуются при сборке: нужны python, librsvg и xorg-xcursorgen
 python art/cursor/make.py "$share/icons"
 
+# Звуки синтезируются при сборке: нужны python-numpy и vorbis-tools. Чего нет в теме, берётся из Ocean
+python art/sounds/make.py "$share/sounds"
+
 # Цвета схемы читаются из kdeglobals, поэтому файл схемы дописывается сюда целиком
 install -d "$dest/etc/xdg"
 cat kdeglobals.head NorkaOS.colors > "$dest/etc/xdg/kdeglobals"

@@ -4,6 +4,7 @@
  * Сочетание клавиш виджета (по умолчанию Meta+N) прячет её и возвращает, это помнится после перезагрузки
  */
 import QtQuick
+import QtMultimedia
 import org.kde.kirigami as Kirigami
 import org.kde.ksysguard.sensors as Sensors
 import org.kde.plasma.core as PlasmaCore
@@ -108,6 +109,13 @@ PlasmoidItem {
         function onYChanged() { if (!root.container.dragActive) snapTimer.restart() }
     }
 
+    // Писк из звуковой темы NorkaOS, тихо: Норка стесняется
+    MediaPlayer {
+        id: squeakSound
+        source: "file:///usr/share/sounds/norkaos/stereo/norka-squeak.oga"
+        audioOutput: AudioOutput { volume: 0.5 }
+    }
+
     Sensors.Sensor {
         id: cpu
         sensorId: "cpu/all/usage"
@@ -202,6 +210,8 @@ PlasmoidItem {
                         return
                     }
                     jump.restart()
+                    squeakSound.stop()
+                    squeakSound.play()
                     bubble.say(root.hot ? i18n("It's so hot in here! Your computer is working hard.")
                                         : root.phrases[Math.floor(Math.random() * root.phrases.length)])
                 }

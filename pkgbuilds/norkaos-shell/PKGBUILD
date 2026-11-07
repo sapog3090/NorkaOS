@@ -1,11 +1,11 @@
 pkgname=norkaos-shell
-pkgver=4
+pkgver=5
 pkgrel=1
 pkgdesc='Оболочка NorkaOS: Норка на рабочем столе и меню'
 arch=('any')
 url='https://github.com/sapog3090/NorkaOS'
 license=('GPL-3.0-only')
-depends=('plasma-desktop' 'plasma-workspace' 'libksysguard' 'noto-fonts-emoji')
+depends=('plasma-desktop' 'plasma-workspace' 'libksysguard' 'noto-fonts-emoji' 'qt6-multimedia-ffmpeg')
 makedepends=('gettext')
 
 # Картинки берутся из папки art, её кладёт сюда build-repo.sh
