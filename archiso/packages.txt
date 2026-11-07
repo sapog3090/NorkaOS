@@ -5,6 +5,7 @@ norkaos-mirrorlist
 norkaos-tweaks
 norkaos-theme
 norkaos-release
+norkaos-plymouth
 plasma-desktop
 plasma-nm
 plasma-pa

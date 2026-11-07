@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=NorkaOS
+Description=Норка выглядывает из-за края, пугается, а потом прыгает на тебя
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/norkaos
+ScriptFile=/usr/share/plymouth/themes/norkaos/norkaos.script

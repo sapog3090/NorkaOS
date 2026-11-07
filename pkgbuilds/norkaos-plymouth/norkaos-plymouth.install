@@ -1,0 +1,8 @@
+# plymouthd.conf принадлежит пакету plymouth, поэтому тему выставляем его же командой
+post_install() {
+  plymouth-set-default-theme norkaos
+}
+
+post_upgrade() {
+  post_install
+}

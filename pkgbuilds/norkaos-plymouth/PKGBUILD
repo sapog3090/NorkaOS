@@ -1,0 +1,21 @@
+pkgname=norkaos-plymouth
+pkgver=1
+pkgrel=1
+pkgdesc='Загрузочный экран NorkaOS с маскотом Норкой'
+arch=('any')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+depends=('plymouth')
+makedepends=('librsvg')
+install=norkaos-plymouth.install
+
+# Картинки берутся из папки art, её кладёт сюда build-repo.sh
+package() {
+  cd "$startdir"
+  local dir="$pkgdir/usr/share/plymouth/themes/norkaos"
+  install -Dm644 norkaos.plymouth "$dir/norkaos.plymouth"
+  install -Dm644 norkaos.script "$dir/norkaos.script"
+  install -Dm644 art/mascot/norka-peek.png "$dir/peek.png"
+  install -Dm644 art/mascot/norka-jump.png "$dir/jump.png"
+  rsvg-convert -h 256 -o "$dir/logo.png" art/logo/norka-icon.svg
+}

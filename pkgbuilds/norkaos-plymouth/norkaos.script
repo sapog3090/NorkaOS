@@ -1,0 +1,77 @@
+# Загрузочный экран NorkaOS. Plymouth вызывает refresh примерно 50 раз в секунду.
+# Сценарий: Норка выглядывает справа, пугается и прячется, потом прыгает на зрителя.
+
+Window.SetBackgroundTopColor(0.05, 0.03, 0.09);
+Window.SetBackgroundBottomColor(0.09, 0.05, 0.15);
+
+W = Window.GetWidth();
+H = Window.GetHeight();
+
+fun ease_out(t) { return 1 - (1 - t) * (1 - t) * (1 - t); }
+fun clamp01(t) { if (t < 0) return 0; if (t > 1) return 1; return t; }
+
+# Выглядывает: правый край картинки ровный, он совпадает с краем экрана
+peek_raw = Image("peek.png");
+peek_h = H * 0.8;
+peek_w = peek_raw.GetWidth() * peek_h / peek_raw.GetHeight();
+peek = Sprite(peek_raw.Scale(peek_w, peek_h));
+peek.SetY(H - peek_h);
+peek.SetX(W);
+peek.SetZ(10);
+
+# Прыжок: картинку масштабируем каждый кадр, пока она летит на зрителя
+jump_raw = Image("jump.png");
+jump_full = H * 0.75;
+jump = Sprite();
+jump.SetZ(20);
+jump.SetOpacity(0);
+
+# Лого-нора внизу тихо пульсирует, пока идёт загрузка
+logo_raw = Image("logo.png");
+logo_h = H * 0.07;
+logo_w = logo_raw.GetWidth() * logo_h / logo_raw.GetHeight();
+logo = Sprite(logo_raw.Scale(logo_w, logo_h));
+logo.SetX(W / 2 - logo_w / 2);
+logo.SetY(H * 0.9 - logo_h / 2);
+logo.SetZ(5);
+
+frame = 0;
+
+fun refresh_callback() {
+    frame++;
+    s = frame / 50;
+
+    logo.SetOpacity(0.55 + 0.35 * Math.Sin(s * 2.4));
+
+    # 0.6–1.6 с: медленно выезжает из-за края
+    if (s < 3.4) {
+        shown = peek_w * 0.85 * ease_out(clamp01((s - 0.6) / 1.0));
+        bob = 0;
+        if (s > 1.6) bob = Math.Sin((s - 1.6) * 5) * H * 0.006;
+        peek.SetX(W - shown);
+        peek.SetY(H - peek_h + bob);
+    }
+    # 3.4–3.65 с: испугалась и резко спряталась
+    else if (s < 3.65) {
+        peek.SetX(W - peek_w * 0.85 * (1 - clamp01((s - 3.4) / 0.25)));
+    }
+    else {
+        peek.SetX(W);
+    }
+
+    # 4.3–4.75 с: прыжок из глубины, лёгкий перелёт и отскок к 4.95 с
+    if (s >= 4.3) {
+        t = clamp01((s - 4.3) / 0.45);
+        size = 0.15 + 1.0 * ease_out(t);
+        if (s > 4.75) size = 1.15 - 0.15 * clamp01((s - 4.75) / 0.2);
+        if (s > 4.95) size = 1 + Math.Sin((s - 4.95) * 3) * 0.015;
+        jh = jump_full * size;
+        jw = jump_raw.GetWidth() * jh / jump_raw.GetHeight();
+        jump.SetImage(jump_raw.Scale(jw, jh));
+        jump.SetX(W / 2 - jw / 2);
+        jump.SetY(H * 0.45 - jh / 2);
+        jump.SetOpacity(clamp01(t * 3));
+    }
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);

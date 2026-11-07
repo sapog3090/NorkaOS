@@ -48,6 +48,14 @@ mv "$dst/grub/grub.cfg.new" "$dst/grub/grub.cfg"
 # Короткие названия пунктов: длинные не влезают в меню на маленьком экране
 sed -i   -e 's/ (%ARCH%, ${archiso_platform})"/"/'   -e 's/with speakup screen reader/with screen reader/'   -e "s/'Run Memtest86+ (RAM test)'/'Memory test'/"   -e "s/'UEFI Firmware Settings'/'Firmware settings'/"   -e "s/'System shutdown'/'Shut down'/"   -e "s/'System restart'/'Restart'/"   "$dst/grub/grub.cfg"
 
+# Загрузочный экран с Норкой: видеодрайвер и plymouth в initramfs, quiet splash только в основном пункте.
+# В безопасной графике и с диктором остаётся обычный текст
+sed -i 's/^HOOKS=(base udev microcode modconf /HOOKS=(base udev microcode modconf kms plymouth /' \
+  "$root/etc/mkinitcpio.conf.d/archiso.conf"
+grep -q 'kms plymouth' "$root/etc/mkinitcpio.conf.d/archiso.conf"
+sed -i 's/archisosearchuuid=%ARCHISO_UUID% %KERNEL_PARAMS%/archisosearchuuid=%ARCHISO_UUID% quiet splash %KERNEL_PARAMS%/' \
+  "$dst/grub/grub.cfg" "$dst/syslinux/archiso_sys-linux.cfg"
+
 # Меню загрузки BIOS: наш фон и фиолетовая подсветка
 cp "$here/../art/boot/syslinux-splash.png" "$dst/syslinux/splash.png"
 sed -i \
