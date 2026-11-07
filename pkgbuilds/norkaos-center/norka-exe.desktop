@@ -6,4 +6,4 @@ Exec=/usr/lib/norka/norka-exe %f
 Icon=norkaos
 Terminal=false
 NoDisplay=true
-MimeType=application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;
+MimeType=application/x-norka-windows-program;application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;

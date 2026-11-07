@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ru\n"
+
+msgid "Hi, %1!"
+msgstr "Привет, %1!"
+
+msgid "What shall we do?"
+msgstr "Чем займёмся?"
+
+msgid "Search apps, files, settings…"
+msgstr "Поиск программ, файлов, настроек…"
+
+msgid "Pinned"
+msgstr "Закреплённые"
+
+msgid "All apps"
+msgstr "Все программы"
+
+msgid "Norka couldn't find anything"
+msgstr "Норка ничего не нашла"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Lock"
+msgstr "Заблокировать"
+
+msgid "Log out"
+msgstr "Выйти"
+
+msgid "Restart"
+msgstr "Перезагрузить"
+
+msgid "Shut down"
+msgstr "Выключить"

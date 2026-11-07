@@ -149,6 +149,24 @@ sed -i "s/^#\(en_US.UTF-8 UTF-8\)/\1/; s/^#\($locale UTF-8\)/\1/" "$target/etc/l
 echo "LANG=$locale" > "$target/etc/locale.conf"
 echo "KEYMAP=$keymap" > "$target/etc/vconsole.conf"
 arch-chroot "$target" locale-gen >/dev/null
+# Раскладка языка системы рядом с английской, переключение Alt+Shift: и в Plasma, и на экране входа
+case "${locale%%_*}" in
+  ru) layout=ru ;; uk) layout=ua ;; be) layout=by ;; pl) layout=pl ;; cs) layout=cz ;; sk) layout=sk ;;
+  bg) layout=bg ;; sr) layout=rs ;; hr) layout=hr ;; bs) layout=ba ;; sl) layout=si ;; mk) layout=mk ;;
+  *) layout="" ;;
+esac
+if [[ -n "$layout" ]]; then
+  printf '[Layout]\nLayoutList=us,%s\nOptions=grp:alt_shift_toggle\nResetOldOptions=true\nUse=true\n' "$layout" \
+    > "$target/etc/xdg/kxkbrc"
+  install -Dm644 /dev/stdin "$target/etc/X11/xorg.conf.d/00-keyboard.conf" <<EOF
+Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "us,$layout"
+    Option "XkbOptions" "grp:alt_shift_toggle"
+EndSection
+EOF
+fi
 arch-chroot "$target" pacman-key --init >/dev/null 2>&1
 arch-chroot "$target" pacman-key --populate archlinux norkaos >/dev/null 2>&1
 echo "PROGRESS 78"

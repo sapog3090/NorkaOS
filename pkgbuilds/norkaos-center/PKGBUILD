@@ -29,6 +29,7 @@ package() {
   install -Dm755 norka-hello-autostart "$pkgdir/usr/lib/norka/norka-hello-autostart"
   install -Dm755 norka-exe "$pkgdir/usr/lib/norka/norka-exe"
   install -Dm644 norka-exe.desktop "$pkgdir/usr/share/applications/norka-exe.desktop"
+  install -Dm644 norkaos-exe.xml "$pkgdir/usr/share/mime/packages/norkaos-exe.xml"
   install -Dm644 org.norkaos.center.policy "$pkgdir/usr/share/polkit-1/actions/org.norkaos.center.policy"
   install -Dm644 norka-center.desktop "$pkgdir/usr/share/applications/norka-center.desktop"
   install -Dm644 norka-hello.desktop "$pkgdir/etc/xdg/autostart/norka-hello.desktop"

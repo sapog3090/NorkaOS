@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Поставить инструменты
-        run: pacman -Syu --noconfirm base-devel github-cli python librsvg xorg-xcursorgen rust webkit2gtk-4.1 gtk3
+        run: pacman -Syu --noconfirm base-devel github-cli python librsvg xorg-xcursorgen rust webkit2gtk-4.1 gtk3 gettext
 
       - name: Собрать и подписать пакеты
         env:

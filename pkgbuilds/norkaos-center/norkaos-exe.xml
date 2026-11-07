@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- .exe как документ, который открывает Wine: KDE не даёт запускать «исполняемые» типы
+     из браузера и других программ, а программа Windows для Linux и так не исполняемая -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-norka-windows-program">
+    <comment>Windows program</comment>
+    <comment xml:lang="ru">Программа Windows</comment>
+    <generic-icon name="application-x-ms-dos-executable"/>
+    <!-- Заголовок MZ: иначе по содержимому файл всё равно признаётся исполняемым -->
+    <magic priority="100">
+      <match type="string" value="MZ" offset="0"/>
+    </magic>
+    <glob pattern="*.exe" weight="80"/>
+    <glob pattern="*.EXE" weight="80"/>
+  </mime-type>
+</mime-info>
