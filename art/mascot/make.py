@@ -17,7 +17,7 @@ src = here / "source"
 session = new_session("isnet-anime")
 
 
-def cut(image, name, keep_bright=0):
+def cut(image, name, keep_bright=0, fade=0, fade_sides=()):
     result = remove(image, session=session, post_process_mask=True)
     if keep_bright:
         # Нейросеть иногда принимает светлые розовые уши на чёрном за свечение фона.
@@ -32,6 +32,16 @@ def cut(image, name, keep_bright=0):
         result = image.convert("RGBA")
         result.putalpha(alpha)
     result = result.crop(result.getbbox())
+    if fade:
+        # Поза упиралась в край исходной картинки: ровный обрез растворяем, чтобы он не бросался в глаза
+        alpha = np.array(result.getchannel("A"), dtype=np.float32)
+        h, w = alpha.shape
+        ramp = np.clip(np.arange(fade) / fade, 0, 1)
+        if "top" in fade_sides:
+            alpha[:fade] *= ramp[:, None]
+        if "right" in fade_sides:
+            alpha[:, w - fade:] *= ramp[::-1][None, :]
+        result.putalpha(Image.fromarray(alpha.astype(np.uint8)))
     result.save(here / f"{name}.png", optimize=True)
     print(name, result.size)
 
@@ -41,4 +51,4 @@ cut(Image.open(src / "norka-shy.png").convert("RGB"), "norka-shy")
 sheet = Image.open(src / "norka-peek-jump.png").convert("RGB")
 # Слева от стенки (x≈620) Норка выглядывает, справа прыгает
 cut(sheet.crop((0, 0, 612, sheet.height)), "norka-peek")
-cut(sheet.crop((632, 0, sheet.width, sheet.height)), "norka-jump", keep_bright=110)
+cut(sheet.crop((632, 0, sheet.width, sheet.height)), "norka-jump", keep_bright=110, fade=90, fade_sides=("top", "right"))
