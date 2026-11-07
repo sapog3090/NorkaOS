@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+# Установка NorkaOS с живого образа на диск, без интернета: система копируется из squashfs образа.
+# Его вызывает установщик с интерфейсом, но можно и руками:
+#   sudo norka-install --disk /dev/sda --user inch --password-file /tmp/pw --yes
+# Режимы: --mode whole (весь диск стирается) или --mode free (в самой большой свободной области диска,
+# чужие разделы не трогаются). Ход работы печатается строками «STEP n/9 текст» и «PROGRESS n».
+set -euo pipefail
+
+mode=whole disk="" user="" fullname="" password_file="" hostname=norkaos
+timezone=UTC locale=en_US.UTF-8 keymap=us yes=0
+target=/mnt/norkaos
+source_root=/run/archiso/airootfs
+kernel=linux-cachyos
+steps=9 step=0
+
+die() { echo "ERROR $*" >&2; exit 1; }
+say() { step=$((step + 1)); echo "STEP $step/$steps $*"; }
+
+while (($#)); do
+  case "$1" in
+    --mode) mode="$2"; shift ;;
+    --disk) disk="$2"; shift ;;
+    --user) user="$2"; shift ;;
+    --fullname) fullname="$2"; shift ;;
+    --password-file) password_file="$2"; shift ;;
+    --hostname) hostname="$2"; shift ;;
+    --timezone) timezone="$2"; shift ;;
+    --locale) locale="$2"; shift ;;
+    --keymap) keymap="$2"; shift ;;
+    --yes) yes=1 ;;
+    *) die "неизвестный параметр $1" ;;
+  esac
+  shift
+done
+
+# Проверки до любых изменений на диске
+((EUID == 0)) || die "нужен root"
+[[ -b "$disk" ]] || die "нет диска $disk"
+[[ "$(lsblk -dno TYPE "$disk")" == disk ]] || die "$disk не целый диск"
+[[ "$mode" == whole || "$mode" == free ]] || die "режим только whole или free"
+[[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || die "имя пользователя: латиница в нижнем регистре, цифры, - и _"
+[[ -r "$password_file" ]] || die "нет файла с паролем"
+[[ -d "$source_root/usr" ]] || die "не найден образ живой системы в $source_root"
+live_disk="$(lsblk -no PKNAME "$(findmnt -no SOURCE /run/archiso/bootmnt 2>/dev/null)" 2>/dev/null || true)"
+[[ -n "$live_disk" && "/dev/$live_disk" == "$disk" ]] && die "это флешка, с которой запущена система"
+findmnt -rno SOURCE | grep -q "^$disk" && die "разделы $disk сейчас смонтированы"
+((yes)) || die "нужно подтверждение --yes"
+
+if [[ -d /sys/firmware/efi ]]; then firmware=uefi; else firmware=bios; fi
+part() { if [[ "$disk" =~ [0-9]$ ]]; then echo "${disk}p$1"; else echo "$disk$1"; fi; }
+
+say "Размечаю диск"
+if [[ "$mode" == whole ]]; then
+  wipefs -af "$disk" >/dev/null
+  sgdisk --zap-all "$disk" >/dev/null
+  sgdisk -n 1:0:+1G -t 1:ef00 -c 1:NorkaBoot -n 2:0:0 -t 2:8300 -c 2:NorkaOS "$disk" >/dev/null
+  boot_num=1 root_num=2
+else
+  # Свободное место: два новых раздела в самой большой пустой области, остальное не трогаем
+  [[ "$(blkid -po value -s PTTYPE "$disk")" == gpt ]] || die "рядом с другой системой ставим только на диск GPT"
+  read -r free_start free_end < <(parted -sm "$disk" unit s print free |
+    awk -F: '$5 == "free;" { gsub("s", ""); size = $3 - $2; if (size > best) { best = size; s = $2; e = $3 } } END { print s, e }')
+  [[ -n "${free_start:-}" ]] || die "на диске нет свободного места"
+  sectors=$((free_end - free_start))
+  (( sectors * 512 >= 25 * 1024 ** 3 )) || die "свободно меньше 25 ГБ"
+  boot_num=$(( $(sgdisk -p "$disk" | awk '/^ +[0-9]+ / { n = $1 } END { print n + 0 }') + 1 ))
+  root_num=$((boot_num + 1))
+  sgdisk -n "$boot_num:$free_start:+1G" -t "$boot_num:ef00" -c "$boot_num:NorkaBoot" \
+         -n "$root_num:0:$free_end" -t "$root_num:8300" -c "$root_num:NorkaOS" "$disk" >/dev/null
+fi
+partprobe "$disk"; udevadm settle
+boot_part="$(part "$boot_num")" root_part="$(part "$root_num")"
+echo "PROGRESS 5"
+
+say "Создаю файловые системы"
+mkfs.fat -F 32 -n NORKABOOT "$boot_part" >/dev/null
+mkfs.btrfs -f -L NorkaOS "$root_part" >/dev/null
+mkdir -p "$target"
+mount "$root_part" "$target"
+for sub in @ @home @snapshots @log @cache; do btrfs subvolume create "$target/$sub" >/dev/null; done
+umount "$target"
+opts=noatime,compress=zstd:1
+mount -o "$opts,subvol=@" "$root_part" "$target"
+mkdir -p "$target"/{boot,home,.snapshots,var/log,var/cache}
+mount -o "$opts,subvol=@home" "$root_part" "$target/home"
+mount -o "$opts,subvol=@snapshots" "$root_part" "$target/.snapshots"
+mount -o "$opts,subvol=@log" "$root_part" "$target/var/log"
+mount -o "$opts,subvol=@cache" "$root_part" "$target/var/cache"
+mount "$boot_part" "$target/boot"
+trap 'umount -R "$target" 2>/dev/null || true' EXIT
+echo "PROGRESS 10"
+
+say "Копирую систему"
+# Прогресс rsync переводим в 10–70 %
+rsync -aAXH --info=progress2 --no-inc-recursive --exclude=/home/norka "$source_root/" "$target/" |
+  stdbuf -oL tr '\r' '\n' | awk '/%/ { for (i = 1; i <= NF; i++) if ($i ~ /%$/) { p = int($i); if (p != last) { print "PROGRESS " 10 + int(p * 0.6); last = p; fflush() } } }'
+cp "$target/usr/lib/modules/"*/vmlinuz "$target/boot/vmlinuz-$kernel"
+echo "PROGRESS 70"
+
+say "Убираю следы живого образа"
+rm -rf \
+  "$target/etc/sudoers.d/norka-live" \
+  "$target/etc/sddm.conf.d/autologin.conf" \
+  "$target/etc/mkinitcpio.conf.d/archiso.conf" \
+  "$target/etc/systemd/system/choose-mirror.service" \
+  "$target/etc/systemd/system/pacman-init.service" \
+  "$target/etc/systemd/system/etc-pacman.d-gnupg.mount" \
+  "$target/etc/systemd/system/livecd-alsa-unmuter.service" \
+  "$target/etc/systemd/system/livecd-talk.service" \
+  "$target/etc/systemd/system/multi-user.target.wants/"{choose-mirror,pacman-init,livecd-talk,sshd,hv_fcopy_daemon,hv_kvp_daemon,hv_vss_daemon,vmtoolsd,vmware-vmblock-fuse}.service \
+  "$target/etc/systemd/system/sound.target.wants/livecd-alsa-unmuter.service" \
+  "$target/etc/systemd/system/getty@tty1.service.d" \
+  "$target/etc/systemd/system/system-generators/systemd-gpt-auto-generator" \
+  "$target/etc/systemd/journald.conf.d/volatile-storage.conf" \
+  "$target/etc/systemd/logind.conf.d/do-not-suspend.conf" \
+  "$target/etc/systemd/resolved.conf.d/archiso.conf" \
+  "$target/etc/ssh/sshd_config.d/10-archiso.conf" \
+  "$target/etc/pacman.d/hooks/uncomment-mirrors.hook" \
+  "$target/etc/pacman.d/hooks/zzzz99-remove-custom-hooks-from-airootfs.hook" \
+  "$target/root/.automated_script.sh" "$target/root/.zlogin" \
+  "$target/usr/local/bin/"{Installation_guide,choose-mirror,livecd-sound} \
+  "$target/usr/local/share/livecd-sound" \
+  "$target/var/lib/AccountsService/users/norka" "$target/var/lib/AccountsService/icons/norka" \
+  "$target/usr/share/sddm/faces/norka.face.icon"
+arch-chroot "$target" userdel norka 2>/dev/null
+rm -f "$target/etc/machine-id"
+# Свой initramfs: видеодрайвер и plymouth для загрузочного экрана с Норкой
+cat > "$target/etc/mkinitcpio.conf.d/norkaos.conf" <<'EOF'
+HOOKS=(base udev autodetect microcode modconf kms plymouth keyboard keymap block filesystems fsck)
+EOF
+echo "PROGRESS 73"
+
+say "Настраиваю систему"
+genfstab -U "$target" | sed 's/subvolid=[0-9]*,//' > "$target/etc/fstab"
+echo "$hostname" > "$target/etc/hostname"
+ln -sf "/usr/share/zoneinfo/$timezone" "$target/etc/localtime"
+sed -i "s/^#\(en_US.UTF-8 UTF-8\)/\1/; s/^#\($locale UTF-8\)/\1/" "$target/etc/locale.gen"
+echo "LANG=$locale" > "$target/etc/locale.conf"
+echo "KEYMAP=$keymap" > "$target/etc/vconsole.conf"
+arch-chroot "$target" locale-gen >/dev/null
+arch-chroot "$target" pacman-key --init >/dev/null 2>&1
+arch-chroot "$target" pacman-key --populate archlinux norkaos >/dev/null 2>&1
+echo "PROGRESS 78"
+
+say "Создаю пользователя"
+arch-chroot "$target" useradd -m -G wheel -c "${fullname:-$user}" -s /bin/bash "$user"
+{ printf '%s:' "$user"; head -n1 "$password_file"; } | arch-chroot "$target" chpasswd
+arch-chroot "$target" passwd -l root >/dev/null
+install -m440 /dev/stdin "$target/etc/sudoers.d/10-wheel" <<<'%wheel ALL=(ALL:ALL) ALL'
+# Аватар Норки для экрана входа: домашняя папка для SDDM закрыта
+install -Dm644 "$target/usr/share/norkaos/norka-face.png" "$target/var/lib/AccountsService/icons/$user"
+printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" | install -Dm644 /dev/stdin "$target/var/lib/AccountsService/users/$user"
+printf '\n# Приветствие NorkaOS в каждом новом окне терминала\ncommand -v norka-hello >/dev/null && norka-hello\n' >> "$target/home/$user/.bashrc"
+echo "PROGRESS 82"
+
+say "Собираю initramfs"
+arch-chroot "$target" mkinitcpio -P >/dev/null
+echo "PROGRESS 92"
+
+say "Ставлю загрузчик"
+root_uuid="$(blkid -s UUID -o value "$root_part")"
+[[ -n "$root_uuid" ]] || die "не удалось узнать UUID раздела $root_part"
+mkdir -p "$target/boot/limine"
+install -m644 /usr/share/norkaos/boot-background.png "$target/boot/limine/background.png"
+cat > "$target/boot/limine/limine.conf" <<EOF
+timeout: 3
+interface_branding: NorkaOS
+interface_branding_colour: b794f4
+interface_help_hidden: yes
+terse: yes
+wallpaper: boot():/limine/background.png
+wallpaper_style: stretched
+term_palette: 120b1f;f06c8b;8fd9a8;f2c97d;8aa4f8;b794f4;7fd4e0;c9b8ea
+term_palette_bright: 4a3470;ff8fa8;b0f0c4;ffdfa0;adc1ff;d4bcff;a6eaf2;ffffff
+term_background: 60120b1f
+term_foreground: ece6f7
+
+/NorkaOS
+    protocol: linux
+    path: boot():/vmlinuz-$kernel
+    cmdline: root=UUID=$root_uuid rootflags=subvol=@ rw quiet splash
+    module_path: boot():/initramfs-$kernel.img
+
+/NorkaOS, safe graphics
+    protocol: linux
+    path: boot():/vmlinuz-$kernel
+    cmdline: root=UUID=$root_uuid rootflags=subvol=@ rw nomodeset
+    module_path: boot():/initramfs-$kernel.img
+EOF
+if [[ "$firmware" == uefi ]]; then
+  # Windows на этом диске: пункт в меню, Limine передаст управление её загрузчику
+  for esp in $(lsblk -lnpo NAME,PARTTYPE "$disk" | awk 'tolower($2) == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" { print $1 }'); do
+    [[ "$esp" == "$boot_part" ]] && continue
+    mnt="$(mktemp -d)"
+    if mount -o ro "$esp" "$mnt" 2>/dev/null; then
+      if [[ -f "$mnt/EFI/Microsoft/Boot/bootmgfw.efi" ]]; then
+        printf '\n/Windows\n    protocol: efi\n    path: guid(%s):/EFI/Microsoft/Boot/bootmgfw.efi\n' \
+          "$(blkid -s PARTUUID -o value "$esp")" >> "$target/boot/limine/limine.conf"
+      fi
+      umount "$mnt"
+    fi
+    rmdir "$mnt"
+  done
+  install -Dm644 /usr/share/limine/BOOTX64.EFI "$target/boot/EFI/BOOT/BOOTX64.EFI"
+  install -Dm644 /usr/share/limine/BOOTX64.EFI "$target/boot/EFI/limine/BOOTX64.EFI"
+  efibootmgr --create --disk "$disk" --part "$boot_num" --label NorkaOS --loader '\EFI\limine\BOOTX64.EFI' >/dev/null || true
+else
+  install -Dm644 /usr/share/limine/limine-bios.sys "$target/boot/limine/limine-bios.sys"
+  limine bios-install "$disk" >/dev/null
+fi
+echo "PROGRESS 97"
+
+say "Заканчиваю"
+arch-chroot "$target" pacman -Rns --noconfirm norkaos-installer >/dev/null 2>&1 || true
+sync
+umount -R "$target"
+trap - EXIT
+echo "PROGRESS 100"
+echo "DONE"

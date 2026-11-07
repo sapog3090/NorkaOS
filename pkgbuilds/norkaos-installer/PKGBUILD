@@ -1,0 +1,30 @@
+pkgname=norkaos-installer
+pkgver=1
+pkgrel=1
+pkgdesc='Установщик NorkaOS: копирует живую систему на диск без интернета'
+arch=('x86_64')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+depends=('arch-install-scripts' 'btrfs-progs' 'dosfstools' 'gptfdisk' 'parted' 'rsync' 'limine' 'efibootmgr'
+         'webkit2gtk-4.1' 'gtk3')
+makedepends=('cargo' 'librsvg')
+options=('!lto' '!debug')
+
+# Окно установщика на Tauri. Картинки берутся из папки art, её кладёт сюда build-repo.sh
+build() {
+  cd "$startdir/app"
+  mkdir -p src-tauri/icons ui/img
+  rsvg-convert -w 256 -h 256 -o src-tauri/icons/icon.png "$startdir/art/logo/norka-icon.svg"
+  cp "$startdir/art/logo/norka-icon.svg" ui/img/logo.svg
+  cp "$startdir/art/mascot/norka-shy.png" ui/img/norka.png
+  cd src-tauri
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --locked
+}
+
+package() {
+  cd "$startdir"
+  install -Dm755 "$srcdir/target/release/norka-installer" "$pkgdir/usr/bin/norka-installer"
+  install -Dm755 norka-install "$pkgdir/usr/bin/norka-install"
+  install -Dm644 norka-installer.desktop "$pkgdir/usr/share/applications/norka-installer.desktop"
+  install -Dm644 art/boot/grub-background.png "$pkgdir/usr/share/norkaos/boot-background.png"
+}

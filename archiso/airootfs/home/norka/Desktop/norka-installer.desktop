@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install NorkaOS
+Name[ru]=Установить NorkaOS
+Comment=Move NorkaOS from this USB drive to your computer
+Comment[ru]=Перенести NorkaOS с флешки на компьютер
+Exec=norka-installer
+Icon=norkaos
+Terminal=false
+Categories=System;

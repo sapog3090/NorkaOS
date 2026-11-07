@@ -31,7 +31,9 @@ launcher.globalShortcut = "Alt+F1";
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
+// Установщик есть только в живой системе: в установленной его значок сам пропадёт
 tasks.writeConfig("launchers", [
+    "applications:norka-installer.desktop",
     "preferred://browser",
     "applications:org.kde.dolphin.desktop",
     "applications:kitty.desktop",

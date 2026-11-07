@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NorkaOS Installer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <aside>
+      <img class="logo" src="img/logo.svg" alt="">
+      <ol id="dots">
+        <li data-page="hello"></li>
+        <li data-page="disk"></li>
+        <li data-page="user"></li>
+        <li data-page="confirm"></li>
+        <li data-page="install"></li>
+      </ol>
+      <img class="norka" src="img/norka.png" alt="">
+    </aside>
+
+    <section id="hello" class="page">
+      <h1 data-t="hello_title"></h1>
+      <p data-t="hello_text"></p>
+      <label class="field">
+        <span data-t="language"></span>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </label>
+      <div class="buttons"><button class="primary" data-go="disk" data-t="start"></button></div>
+    </section>
+
+    <section id="disk" class="page">
+      <h1 data-t="disk_title"></h1>
+      <p data-t="disk_text"></p>
+      <div id="disks" class="list"></div>
+      <div id="modes" class="modes">
+        <label class="mode"><input type="radio" name="mode" value="whole" checked>
+          <b data-t="mode_whole"></b><small data-t="mode_whole_hint"></small></label>
+        <label class="mode"><input type="radio" name="mode" value="free">
+          <b data-t="mode_free"></b><small id="free-hint" data-t="mode_free_hint"></small></label>
+      </div>
+      <div id="disk-warnings"></div>
+      <div class="buttons">
+        <button data-go="hello" data-t="back"></button>
+        <button class="primary" id="disk-next" data-go="user" data-t="next"></button>
+      </div>
+    </section>
+
+    <section id="user" class="page">
+      <h1 data-t="user_title"></h1>
+      <div class="grid">
+        <label class="field"><span data-t="fullname"></span><input id="fullname" autocomplete="off"></label>
+        <label class="field"><span data-t="username"></span><input id="username" autocomplete="off" spellcheck="false">
+          <small data-t="username_hint"></small></label>
+        <label class="field"><span data-t="password"></span><input id="password" type="password"></label>
+        <label class="field"><span data-t="password_again"></span><input id="password2" type="password">
+          <small id="mismatch" class="bad" data-t="password_mismatch" hidden></small></label>
+        <label class="field"><span data-t="hostname"></span><input id="hostname" value="norkaos" spellcheck="false"></label>
+        <label class="field"><span data-t="timezone"></span><select id="timezone"></select></label>
+      </div>
+      <div class="buttons">
+        <button data-go="disk" data-t="back"></button>
+        <button class="primary" id="user-next" data-go="confirm" data-t="next"></button>
+      </div>
+    </section>
+
+    <section id="confirm" class="page">
+      <h1 data-t="confirm_title"></h1>
+      <div id="summary" class="card"></div>
+      <label class="check"><input type="checkbox" id="agree"> <span data-t="confirm_check"></span></label>
+      <div class="buttons">
+        <button data-go="user" data-t="back"></button>
+        <button class="danger" id="install" data-t="install" disabled></button>
+      </div>
+    </section>
+
+    <section id="install" class="page">
+      <h1 id="install-title" data-t="installing_title"></h1>
+      <p id="install-text" data-t="installing_text"></p>
+      <div class="bar"><div id="bar"></div></div>
+      <p id="step" class="muted"></p>
+      <pre id="details" hidden></pre>
+      <div class="buttons"><button class="primary" id="restart" data-t="restart" hidden></button></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

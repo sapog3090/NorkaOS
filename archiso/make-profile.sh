@@ -72,6 +72,10 @@ sed -i -e 's/ (%ARCH%, BIOS), /, /' -e 's/ (%ARCH%, BIOS) / /' -e 's/ (%ARCH%, B
 sed -i -e 's/Run Memtest86+ (RAM test)/Memory test/' -e 's/Hardware Information (HDT)/Hardware info/' -e 's/^MENU LABEL Power Off$/MENU LABEL Shut down/' -e 's/^MENU LABEL Reboot$/MENU LABEL Restart/' \
   "$dst/syslinux/archiso_tail.cfg"
 
+# Место под изменения в живой системе: по умолчанию 256 МБ, установка пары пакетов его съедает
+sed -i 's/archisosearchuuid=%ARCHISO_UUID%/archisosearchuuid=%ARCHISO_UUID% cow_spacesize=1G/' \
+  "$dst/grub/grub.cfg" "$dst/syslinux/archiso_sys-linux.cfg"
+
 # Имя системы
 sed -i \
   -e 's/^iso_name=.*/iso_name="norkaos"/' \

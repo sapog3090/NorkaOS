@@ -8,6 +8,8 @@ norkaos-theme
 norkaos-release
 norkaos-plymouth
 fastfetch
+norkaos-installer
+limine
 plasma-desktop
 plasma-nm
 plasma-pa
