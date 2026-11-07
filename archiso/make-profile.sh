@@ -17,6 +17,19 @@ sed -i \
   -e '/^linux$/d' \
   -e '/^broadcom-wl$/d' \
   "$dst/packages.x86_64"
+# Инструменты спасения серверов из releng обычному человеку не нужны, а образ должен влезть в 2 ГБ (предел файла в релизе GitHub).
+# Установщику нужны arch-install-scripts, parted, gptfdisk, btrfs-progs, dosfstools, rsync, efibootmgr: их не трогаем.
+# brltty и espeakup оставлены для пункта меню с экранным диктором, nbd и mkinitcpio-nfs-utils нужны хукам загрузки archiso
+for pkg in archinstall clonezilla partclone partimage fsarchiver ddrescue testdisk gpart \
+           irssi lynx lftp mc nmap tcpdump darkhttpd bind ldns dnsmasq ndisc6 \
+           openconnect openvpn vpnc pptpclient xl2tpd wvdial ppp open-iscsi \
+           hyperv open-vm-tools qemu-guest-agent \
+           grml-zsh-config zsh tmux screen vim man-db man-pages \
+           bcachefs-tools nilfs-utils jfsutils dmraid sequoia-sq openpgp-card-tools tpm2-tools tpm2-tss \
+           gpm mmc-utils sg3_utils sdparm refind reflector iwd b43-fwcutter \
+           rxvt-unicode-terminfo foot-terminfo ghostty-terminfo kmscon-terminfo; do
+  sed -i "/^$pkg\$/d" "$dst/packages.x86_64"
+done
 grep -v -e '^#' -e '^$' "$here/packages.txt" >> "$dst/packages.x86_64"
 
 # Репозитории: живая система читает снимок из norkaos-mirrorlist, сборка берёт ту же дату
@@ -104,6 +117,9 @@ install -Dm644 "$face" "$root/usr/share/sddm/faces/norka.face.icon"
 install -Dm644 "$face" "$root/var/lib/AccountsService/icons/norka"
 printf '[User]\nIcon=/var/lib/AccountsService/icons/norka\n' | install -Dm644 /dev/stdin "$root/var/lib/AccountsService/users/norka"
 echo 'norka:x:1000:1000:Norka:/home/norka:/bin/bash' >> "$root/etc/passwd"
+# zsh из образа убран, root получает bash
+sed -i 's|^\(root:.*\):/usr/bin/zsh$|\1:/bin/bash|' "$root/etc/passwd"
+rm -f "$root/root/.zlogin"
 echo 'norka::14871::::::' >> "$root/etc/shadow"
 
 # Сеть ведёт NetworkManager. SSH и автовход root при пустом пароле в графической системе не нужны

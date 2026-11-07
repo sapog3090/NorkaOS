@@ -138,6 +138,7 @@ async function loadNorka() {
     $("norka-shown").checked = true;
   }
   $("terminal-hello").checked = await invoke("terminal_hello");
+  $("jokes").checked = await invoke("jokes");
 }
 
 const PANEL_STATE = `
@@ -198,6 +199,7 @@ $("apps-install").onclick = installApps;
 $("norka-shown").onchange = (e) => invoke("plasma", { script: norkaScript(`w.writeConfig("hidden", ${!e.target.checked});`) });
 $("norka-corner").onclick = () => invoke("plasma", { script: norkaScript(`w.writeConfig("stickToCorner", true); w.writeConfig("hidden", false);`) }).then(loadNorka);
 $("terminal-hello").onchange = (e) => invoke("set_terminal_hello", { on: e.target.checked });
+$("jokes").onchange = (e) => invoke("set_jokes", { on: e.target.checked });
 document.querySelectorAll("#panel-location button").forEach((b) => { b.onclick = () => setPanel(`p.location = "${b.dataset.value}";`); });
 document.querySelectorAll("#panel-style button").forEach((b) => {
   b.onclick = () => setPanel(b.dataset.value === "bar"
@@ -218,6 +220,7 @@ $("clean-broken").onclick = async () => {
 (async () => {
   mode = await invoke("mode");
   await loadStrings();
+  if (await invoke("needs_nvidia")) APPS.unshift({ id: "nvidia", icon: "🟩", picked: true });
   renderApps();
   $("about-version").textContent = t("about_version", await invoke("version"));
   if (mode === "hello") {

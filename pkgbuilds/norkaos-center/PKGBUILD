@@ -1,6 +1,6 @@
 pkgname=norkaos-center
 pkgver=1
-pkgrel=4
+pkgrel=5
 pkgdesc='Норка Центр и Норка Привет: настройки NorkaOS, программы и снимки'
 arch=('x86_64')
 url='https://github.com/sapog3090/NorkaOS'
@@ -24,6 +24,7 @@ build() {
 package() {
   cd "$startdir"
   install -Dm755 "$srcdir/target/release/norka-center" "$pkgdir/usr/bin/norka-center"
+  install -Dm755 norka "$pkgdir/usr/bin/norka"
   install -Dm755 norka-apps "$pkgdir/usr/lib/norka/norka-apps"
   install -Dm755 norka-snapshots-admin "$pkgdir/usr/lib/norka/norka-snapshots-admin"
   install -Dm755 norka-hello-autostart "$pkgdir/usr/lib/norka/norka-hello-autostart"

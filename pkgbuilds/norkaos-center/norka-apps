@@ -12,6 +12,8 @@ declare -A pacman_pkgs=(
   [video]="obs-studio kdenlive"
   [torrent]="qbittorrent"
   [wine]="wine wine-mono wine-gecko winetricks"
+  # Драйвер NVIDIA не влезает в образ (он ~1 ГБ, а файл релиза на GitHub до 2 ГБ), ставится отсюда
+  [nvidia]="linux-cachyos-nvidia-open nvidia-utils nvidia-settings lib32-nvidia-utils"
 )
 declare -A flatpaks=(
   [vesktop]="dev.vencord.Vesktop"

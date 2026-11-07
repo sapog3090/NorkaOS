@@ -1,9 +1,5 @@
 # Пакеты NorkaOS поверх штатного списка releng
 linux-cachyos
-# NVIDIA (RTX 20 и новее): открытый модуль под ядро CachyOS. На ПК без NVIDIA установщик его убирает
-linux-cachyos-nvidia-open
-nvidia-utils
-nvidia-settings
 norkaos-keyring
 norkaos-mirrorlist
 norkaos-tweaks

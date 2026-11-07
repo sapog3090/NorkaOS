@@ -175,6 +175,31 @@ fn set_terminal_hello(on: bool) -> Result<(), String> {
     }
 }
 
+/// Есть ли видеокарта NVIDIA без её драйвера: тогда Привет первым предложит драйвер
+#[tauri::command]
+fn needs_nvidia() -> bool {
+    let gpu = output("lspci", &["-d", "10de:"]).unwrap_or_default().to_lowercase();
+    let has_card = gpu.lines().any(|l| l.contains("vga") || l.contains("3d") || l.contains("display"));
+    has_card && Command::new("pacman").args(["-Q", "nvidia-utils"]).output().map(|o| !o.status.success()).unwrap_or(true)
+}
+
+#[tauri::command]
+fn jokes() -> bool {
+    !config_dir().join("no-jokes").exists()
+}
+
+#[tauri::command]
+fn set_jokes(on: bool) -> Result<(), String> {
+    let flag = config_dir().join("no-jokes");
+    if on {
+        let _ = std::fs::remove_file(flag);
+        Ok(())
+    } else {
+        std::fs::create_dir_all(config_dir()).map_err(|e| e.to_string())?;
+        std::fs::write(flag, "").map_err(|e| e.to_string())
+    }
+}
+
 #[tauri::command]
 fn reboot() {
     let _ = Command::new("systemctl").arg("reboot").spawn();
@@ -205,6 +230,9 @@ fn main() {
             plasma,
             terminal_hello,
             set_terminal_hello,
+            needs_nvidia,
+            jokes,
+            set_jokes,
             reboot,
             version
         ])

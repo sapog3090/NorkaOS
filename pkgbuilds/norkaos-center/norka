@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Команда norka: обновление системы с комментариями Норки.
+#   norka update        обновить всё (перед этим snapper сам сделает снимок)
+#   norka snapshots     список снимков, к которым можно вернуться
+#   norka jokes on/off  включить или выключить шутки
+#   norka help
+set -uo pipefail
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/norka"
+lang="${LANG:-en}"; lang="${lang%%_*}"
+case "$lang" in ru|uk|pl) ;; *) lang=en ;; esac
+
+pink=$'\e[38;2;240;160;200m'; lilac=$'\e[38;2;183;148;244m'; bold=$'\e[1m'; reset=$'\e[0m'
+[[ -t 1 ]] || { pink=""; lilac=""; bold=""; reset=""; }
+
+# Тексты: ключ|en|ru|uk|pl
+texts=(
+  "start|Norka is checking for updates…|Норка проверяет обновления…|Норка перевіряє оновлення…|Norka sprawdza aktualizacje…"
+  "snap|A snapshot is taken first: if something breaks, pick it in the boot menu.|Сначала будет снимок: если что-то сломается, выбери его в меню загрузки.|Спершу буде знімок: якщо щось зламається, обери його в меню завантаження.|Najpierw zrobię migawkę: jeśli coś się zepsuje, wybierz ją w menu rozruchu."
+  "done|All fresh! Norka is proud of you.|Всё свежее! Норка тобой гордится.|Усе свіже! Норка тобою пишається.|Wszystko świeże! Norka jest z ciebie dumna."
+  "fail|The update did not finish. Nothing is lost: try again, or roll back in the boot menu.|Обновление не закончилось. Ничего не потеряно: попробуй ещё раз или откатись в меню загрузки.|Оновлення не завершилося. Нічого не втрачено: спробуй ще раз або відкотися в меню завантаження.|Aktualizacja się nie skończyła. Nic nie stracone: spróbuj ponownie albo cofnij się w menu rozruchu."
+  "reboot|A new kernel arrived: restart when you are ready.|Пришло новое ядро: перезагрузись, когда будет удобно.|Прийшло нове ядро: перезавантаж, коли буде зручно.|Przyszło nowe jądro: uruchom ponownie, kiedy ci wygodnie."
+  "jokes_on|Jokes are on.|Шутки включены.|Жарти ввімкнено.|Żarty włączone."
+  "jokes_off|Jokes are off. Norka will be serious.|Шутки выключены. Норка будет серьёзной.|Жарти вимкнено. Норка буде серйозною.|Żarty wyłączone. Norka będzie poważna."
+  "help|Commands: update, snapshots, jokes on/off, help|Команды: update, snapshots, jokes on/off, help|Команди: update, snapshots, jokes on/off, help|Polecenia: update, snapshots, jokes on/off, help"
+)
+jokes_en=("Gnawing through the package list…" "Stuffing new packages into my cheeks…" "Digging a slightly deeper burrow…" "Hiding crumbs from the old version…" "Sniffing the mirrors for fresh cheese…")
+jokes_ru=("Грызу список пакетов…" "Запихиваю новые пакеты за щёки…" "Копаю нору чуть поглубже…" "Прячу крошки от старой версии…" "Нюхаю зеркала в поисках свежего сыра…")
+jokes_uk=("Гризу список пакетів…" "Запихаю нові пакети за щоки…" "Копаю нору трохи глибше…" "Ховаю крихти від старої версії…" "Нюхаю дзеркала в пошуках свіжого сиру…")
+jokes_pl=("Obgryzam listę pakietów…" "Upycham nowe pakiety w policzkach…" "Kopię norkę trochę głębiej…" "Chowam okruszki po starej wersji…" "Węszę po serwerach za świeżym serem…")
+
+t() {
+  local col
+  case "$lang" in en) col=2 ;; ru) col=3 ;; uk) col=4 ;; pl) col=5 ;; esac
+  for line in "${texts[@]}"; do
+    [[ "${line%%|*}" == "$1" ]] && { cut -d'|' -f"$col" <<<"$line"; return; }
+  done
+}
+
+say() { printf '%s🐀 %s%s\n' "$lilac$bold" "$1" "$reset"; }
+
+joke() {
+  [[ -e "$config/no-jokes" ]] && return
+  local -n list="jokes_$lang"
+  printf '%s   %s%s\n' "$pink" "${list[RANDOM % ${#list[@]}]}" "$reset"
+}
+
+case "${1:-help}" in
+  update)
+    say "$(t start)"
+    joke
+    say "$(t snap)"
+    kernel_before="$(pacman -Q linux-cachyos 2>/dev/null)"
+    if sudo pacman -Syu; then
+      flatpak update -y --noninteractive 2>/dev/null
+      joke
+      say "$(t done)"
+      [[ "$(pacman -Q linux-cachyos 2>/dev/null)" != "$kernel_before" ]] && say "$(t reboot)"
+    else
+      say "$(t fail)"
+      exit 1
+    fi
+    ;;
+  snapshots)
+    snapper -c root list --columns number,type,date,description 2>/dev/null | awk -F'│' 'NR <= 2 || $2 ~ /pre/'
+    ;;
+  jokes)
+    mkdir -p "$config"
+    case "${2:-}" in
+      on) rm -f "$config/no-jokes"; say "$(t jokes_on)" ;;
+      off) : > "$config/no-jokes"; say "$(t jokes_off)" ;;
+      *) say "$(t help)" ;;
+    esac
+    ;;
+  *) say "$(t help)" ;;
+esac
