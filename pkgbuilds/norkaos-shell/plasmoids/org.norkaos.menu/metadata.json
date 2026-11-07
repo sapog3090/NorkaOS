@@ -1,0 +1,18 @@
+{
+    "KPlugin": {
+        "Authors": [{ "Name": "NorkaOS" }],
+        "Category": "Application Launchers",
+        "Description": "Start menu of NorkaOS",
+        "Description[ru]": "Меню NorkaOS",
+        "Icon": "norkaos",
+        "Id": "org.norkaos.menu",
+        "License": "GPL-3.0-only",
+        "Name": "Norka Menu",
+        "Name[ru]": "Меню Норки",
+        "Version": "1",
+        "Website": "https://github.com/sapog3090/NorkaOS"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": ["org.kde.plasma.launchermenu"]
+}
