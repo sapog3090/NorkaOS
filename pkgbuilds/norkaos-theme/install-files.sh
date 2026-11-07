@@ -26,6 +26,8 @@ install -d "$dest/etc/xdg"
 cat kdeglobals.head NorkaOS.colors > "$dest/etc/xdg/kdeglobals"
 chmod 644 "$dest/etc/xdg/kdeglobals"
 install -m644 xdg/plasmarc xdg/ksplashrc xdg/kscreenlockerrc xdg/kcminputrc "$dest/etc/xdg/"
+# kitty ищет конфиг и в /etc/xdg, если у пользователя своего нет
+install -Dm644 xdg/kitty.conf "$dest/etc/xdg/kitty/kitty.conf"
 
 # Экран входа: тема breeze из plasma-desktop, фон наш
 install -Dm644 sddm/10-norkaos.conf "$dest/etc/sddm.conf.d/10-norkaos.conf"

@@ -66,6 +66,11 @@ sed -i \
 awk -v f="$here/boot/syslinux-safe.cfg" '/^# Accessibility boot option$/ { while ((getline l < f) > 0) print l } { print }' \
   "$dst/syslinux/archiso_sys-linux.cfg" > "$dst/syslinux/archiso_sys-linux.cfg.new"
 mv "$dst/syslinux/archiso_sys-linux.cfg.new" "$dst/syslinux/archiso_sys-linux.cfg"
+# Короткие названия, как в GRUB
+sed -i -e 's/ (%ARCH%, BIOS), /, /' -e 's/ (%ARCH%, BIOS) / /' -e 's/ (%ARCH%, BIOS)$//' -e 's/with ^speech/with screen ^reader/' \
+  "$dst/syslinux/archiso_sys-linux.cfg"
+sed -i -e 's/Run Memtest86+ (RAM test)/Memory test/' -e 's/Hardware Information (HDT)/Hardware info/' -e 's/^MENU LABEL Power Off$/MENU LABEL Shut down/' -e 's/^MENU LABEL Reboot$/MENU LABEL Restart/' \
+  "$dst/syslinux/archiso_tail.cfg"
 
 # Имя системы
 sed -i \
