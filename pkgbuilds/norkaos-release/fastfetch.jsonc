@@ -1,17 +1,18 @@
-// fastfetch в NorkaOS: наше лого вместо арчевского
+// fastfetch в NorkaOS: лого NorkaOS слева, сведения о компьютере справа
 {
   "logo": {
-    "type": "file-raw",
-    "source": "/usr/share/norkaos/logo.ansi",
-    "width": 26,
-    "height": 13,
-    "padding": { "top": 1, "right": 3 }
+    "type": "file",
+    "source": "/usr/share/norkaos/logo.txt",
+    "color": { "1": "38;2;183;148;244", "2": "38;2;240;160;200", "3": "38;2;74;52;112" },
+    "padding": { "top": 1, "left": 1, "right": 4 }
   },
   "display": {
+    "separator": "  ",
     "color": { "keys": "magenta", "title": "magenta" }
   },
   "modules": [
+    { "type": "custom", "format": "\u001b[1;38;2;201;184;234mWelcome to NorkaOS\u001b[0m" },
     "title", "separator", "os", "kernel", "uptime", "packages", "shell",
-    "de", "wm", "terminal", "cpu", "gpu", "memory", "disk", "break", "colors"
+    "de", "terminal", "cpu", "gpu", "memory", "disk", "break", "colors"
   ]
 }

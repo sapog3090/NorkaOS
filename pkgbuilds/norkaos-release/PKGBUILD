@@ -1,12 +1,11 @@
 pkgname=norkaos-release
-pkgver=3
+pkgver=4
 pkgrel=1
 pkgdesc='Имя системы NorkaOS в os-release и приветствие в терминале'
 arch=('any')
 url='https://github.com/sapog3090/NorkaOS'
 license=('GPL-3.0-only')
-depends=('filesystem')
-optdepends=('fastfetch: сводка о системе с лого NorkaOS')
+depends=('filesystem' 'fastfetch')
 source=('os-release' 'norkaos-release.hook' 'norka-hello' 'fastfetch.jsonc')
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
 
@@ -15,7 +14,6 @@ package() {
   install -Dm644 os-release "$pkgdir/usr/share/norkaos/os-release"
   install -Dm644 norkaos-release.hook "$pkgdir/usr/share/libalpm/hooks/norkaos-release.hook"
   install -Dm755 norka-hello "$pkgdir/usr/bin/norka-hello"
-  install -Dm644 "$startdir/art/terminal/hello.ansi" "$pkgdir/usr/share/norkaos/hello.ansi"
-  install -Dm644 "$startdir/art/terminal/logo.ansi" "$pkgdir/usr/share/norkaos/logo.ansi"
+  install -Dm644 "$startdir/art/terminal/logo.txt" "$pkgdir/usr/share/norkaos/logo.txt"
   install -Dm644 fastfetch.jsonc "$pkgdir/etc/xdg/fastfetch/config.jsonc"
 }
