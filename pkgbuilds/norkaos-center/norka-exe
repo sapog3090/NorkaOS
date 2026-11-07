@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Открывает .exe двойным кликом: через Wine, а если его нет, предлагает поставить
+set -uo pipefail
+file="${1:?нужен .exe}"
+ru=0; [[ "${LANG:-}" == ru* ]] && ru=1
+say() { if ((ru)); then echo "$2"; else echo "$1"; fi; }
+
+if ! command -v wine >/dev/null; then
+  kdialog --title "$(say 'Windows program' 'Программа Windows')" --icon norkaos --yesno \
+    "$(say "To run $(basename "$file") Norka needs Wine (about 1 GB, needs the internet). Install it?" \
+           "Чтобы запустить $(basename "$file"), Норке нужен Wine (около 1 ГБ, нужен интернет). Поставить?")" || exit 0
+  notify-send -a "Norka" -i norkaos "$(say 'Installing Wine…' 'Ставлю Wine…')" "$(say 'It takes a few minutes' 'Это займёт несколько минут')"
+  if ! pkexec /usr/lib/norka/norka-apps wine >/dev/null 2>&1; then
+    kdialog --title "Norka" --error "$(say 'Wine did not install. Check the internet and try again.' 'Wine не поставился. Проверь интернет и попробуй ещё раз.')"
+    exit 1
+  fi
+fi
+
+# Отдельный префикс NorkaOS, чтобы не мешать Bottles и Steam
+export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/norka-wine}"
+if [[ ! -d "$WINEPREFIX" ]]; then
+  notify-send -a "Norka" -i norkaos "$(say 'Preparing Windows programs…' 'Готовлю запуск программ Windows…')" "$(say 'Only the first time' 'Только в первый раз')"
+fi
+cd "$(dirname "$file")" && exec wine start /unix "$file"

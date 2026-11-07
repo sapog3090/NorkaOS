@@ -24,6 +24,9 @@ snapshot="$(sed -n 's/^pkgver=//p' "$here/../pkgbuilds/norkaos-mirrorlist/PKGBUI
 snapshot="${snapshot:0:4}/${snapshot:4:2}/${snapshot:6:2}"
 sed -i '/^\[core\]/i [norkaos]\nSigLevel = Required DatabaseRequired\nServer = https://github.com/sapog3090/NorkaOS/releases/download/repo\n' "$dst/pacman.conf"
 sed 's|^Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/norkaos-snapshot|' "$dst/pacman.conf" > "$root/etc/pacman.conf"
+# multilib нужен Steam и 32-битным библиотекам игр, берётся из того же снимка
+sed -i '/^#\[multilib\]$/{s/^#//;n;s|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/norkaos-snapshot|}' "$root/etc/pacman.conf"
+grep -A1 '^\[multilib\]' "$root/etc/pacman.conf" | grep -q norkaos-snapshot
 sed -i "s|^Include = /etc/pacman.d/mirrorlist|Server = https://archive.archlinux.org/repos/$snapshot/\$repo/os/\$arch|" "$dst/pacman.conf"
 
 cp -a "$here/airootfs/." "$root/"

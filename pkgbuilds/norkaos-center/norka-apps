@@ -11,6 +11,7 @@ declare -A pacman_pkgs=(
   [blender]="blender"
   [video]="obs-studio kdenlive"
   [torrent]="qbittorrent"
+  [wine]="wine wine-mono wine-gecko winetricks"
 )
 declare -A flatpaks=(
   [vesktop]="dev.vencord.Vesktop"

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Windows program (Wine)
+Name[ru]=Программа Windows (Wine)
+Exec=/usr/lib/norka/norka-exe %f
+Icon=norkaos
+Terminal=false
+NoDisplay=true
+MimeType=application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;
