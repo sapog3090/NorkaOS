@@ -133,6 +133,10 @@ rm -f "$target/etc/machine-id"
 cat > "$target/etc/mkinitcpio.conf.d/norkaos.conf" <<'EOF'
 HOOKS=(base udev autodetect microcode modconf kms plymouth keyboard keymap block filesystems fsck norka-overlay)
 EOF
+# Драйвер NVIDIA нужен только там, где есть карта NVIDIA: иначе он лишь запрещает nouveau
+if ! lspci -d 10de: 2>/dev/null | grep -qiE 'vga|3d|display'; then
+  arch-chroot "$target" pacman -Rns --noconfirm linux-cachyos-nvidia-open nvidia-settings nvidia-utils >/dev/null 2>&1 || true
+fi
 # Установщик в установленной системе не нужен. Убираем до настройки снимков, чтобы не было лишнего снимка
 arch-chroot "$target" pacman -Rns --noconfirm norkaos-installer >/dev/null 2>&1 || true
 # Снимки перед обновлениями: подтом @snapshots уже смонтирован в /.snapshots

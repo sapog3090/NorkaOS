@@ -25,7 +25,8 @@ done
 export GNUPGHOME
 GNUPGHOME="$(mktemp -d)"
 gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$cachyos_key"
-for pkg in linux-cachyos linux-cachyos-headers; do
+# Модуль NVIDIA собран CachyOS под это же ядро, версия драйвера должна совпасть с nvidia-utils в снимке Arch
+for pkg in linux-cachyos linux-cachyos-headers linux-cachyos-nvidia-open; do
   file="$pkg-$kernel-x86_64.pkg.tar.zst"
   curl -fsSL --retry 3 -o "$out/$file" "$cachyos_mirror/$file"
   curl -fsSL --retry 3 -o "$GNUPGHOME/$file.sig" "$cachyos_mirror/$file.sig"

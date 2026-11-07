@@ -190,6 +190,10 @@ fn version() -> String {
 }
 
 fn main() {
+    // С драйвером NVIDIA WebKit иногда рисует пустое окно: отключаем ему dmabuf
+    if std::path::Path::new("/proc/driver/nvidia").exists() {
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    }
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             mode,

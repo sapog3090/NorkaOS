@@ -4,7 +4,7 @@
 set -uo pipefail
 
 declare -A pacman_pkgs=(
-  [games]="steam gamemode lib32-gamemode mangohud lib32-mangohud"
+  [games]="steam gamemode lib32-gamemode mangohud lib32-mangohud lib32-mesa lib32-vulkan-radeon lib32-vulkan-intel"
   [prism]="prismlauncher jre21-openjdk jre17-openjdk"
   [krita]="krita"
   [office]="libreoffice-fresh libreoffice-fresh-ru"
@@ -20,6 +20,10 @@ declare -A flatpaks=(
 
 ((EUID == 0)) || { echo "ERROR нужен root"; exit 1; }
 ids=("$@")
+# 32-битная часть драйвера NVIDIA для Steam, если стоит драйвер NVIDIA
+if pacman -Q nvidia-utils >/dev/null 2>&1; then
+  pacman_pkgs[games]+=" lib32-nvidia-utils"
+fi
 total=${#ids[@]}
 ((total)) || exit 0
 failed=()
