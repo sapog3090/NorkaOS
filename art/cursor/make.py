@@ -1,4 +1,4 @@
-"""Рисует курсоры NorkaOS: пушистую стрелку и крысиную лапу вместо руки.
+"""Рисует курсоры NorkaOS: пушистую стрелку, которая над ссылками крутится вокруг кончика.
 
 Запуск в WSL с Arch (нужны librsvg и xorg-xcursorgen): python art/cursor/make.py <папка>
 В папке появится тема курсоров NorkaOS-Paw, остальные курсоры она берёт из Breeze.
@@ -12,7 +12,6 @@ import tempfile
 FUR = "#e4d6ff"
 FUR_DARK = "#b794f4"
 LINE = "#241338"
-PAD = "#f2a7c9"
 SIZES = (24, 32, 48, 64)
 
 
@@ -42,45 +41,46 @@ def fluffy(points, tuft=7.0, step=13.0, smooth_from=None, smooth_len=0.0):
     return " ".join(parts) + " Z"
 
 
-def arrow_svg():
-    tip = (28, 20)
-    shape = [tip, (28, 196), (78, 152), (112, 226), (146, 210), (114, 140), (182, 136)]
-    path = fluffy(shape, smooth_from=tip, smooth_len=40)
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+TIP = (28, 20)
+
+
+def arrow_svg(angle=0.0, canvas=256):
+    """Стрелка, повёрнутая вокруг кончика. canvas больше 256 оставляет место для поворота, кончик тогда в центре."""
+    shape = [TIP, (28, 196), (78, 152), (112, 226), (146, 210), (114, 140), (182, 136)]
+    path = fluffy(shape, smooth_from=TIP, smooth_len=40)
+    left, top = (0, 0) if canvas == 256 else (TIP[0] - canvas / 2, TIP[1] - canvas / 2)
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="{left} {top} {canvas} {canvas}">
 <defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="1">
 <stop offset="0" stop-color="{FUR}"/><stop offset="1" stop-color="{FUR_DARK}"/></linearGradient></defs>
+<g transform="rotate({angle:.2f} {TIP[0]} {TIP[1]})">
 <path d="{path}" fill="url(#f)" stroke="{LINE}" stroke-width="9" stroke-linejoin="round"/>
-</svg>"""
-
-
-def paw_svg():
-    # Отпечаток крысиной лапки: пушистая подушечка и четыре пальчика, наклон влево, кликает верхний пальчик
-    palm = [(128 + 64 * math.cos(t / 18 * math.pi), 166 + 52 * math.sin(t / 18 * math.pi)) for t in range(36)]
-    toes = [(70, 104, 19, 25), (104, 72, 20, 27), (152, 72, 20, 27), (186, 104, 19, 25)]
-    toe_fur = "".join(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}"/>' for x, y, rx, ry in toes)
-    toe_pad = "".join(f'<ellipse cx="{x}" cy="{y + 4}" rx="{rx - 8}" ry="{ry - 10}"/>' for x, y, rx, ry in toes)
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-<defs><linearGradient id="f" x1="0" y1="0" x2="0" y2="1">
-<stop offset="0" stop-color="{FUR}"/><stop offset="1" stop-color="{FUR_DARK}"/></linearGradient></defs>
-<g transform="rotate(-25 128 150)">
-<g stroke="{LINE}" stroke-width="9" stroke-linejoin="round" fill="url(#f)">
-{toe_fur}
-<path d="{fluffy(palm, tuft=5, step=14)}"/>
-</g>
-<g fill="{PAD}">
-{toe_pad}
-<path d="M128 146 C104 146 92 166 96 182 C100 196 116 196 128 190 C140 196 156 196 160 182 C164 166 152 146 128 146 Z"/>
-</g>
 </g>
 </svg>"""
 
 
-# Имя курсора → картинка, точка клика в долях от размера, синонимы
+def default_frames():
+    # Один кадр, кончик в левом верхнем углу
+    return [(arrow_svg(), 1, (TIP[0] / 256, TIP[1] / 256), 0)]
+
+
+def pointer_frames():
+    # Над ссылкой стрелка плавно делает оборот вокруг кончика и замирает. Картинка вдвое больше,
+    # чтобы стрелке было где развернуться, поэтому кончик и точка клика в центре
+    spin, frames = 28, []
+    for i in range(spin):
+        t = i / spin
+        eased = t * t * (3 - 2 * t)
+        frames.append((arrow_svg(360 * eased, 512), 2, (0.5, 0.5), 22))
+    frames.append((arrow_svg(0, 512), 2, (0.5, 0.5), 1100))
+    return frames
+
+
+# Имя курсора → кадры, синонимы
 CURSORS = {
-    "default": (arrow_svg, (28 / 256, 20 / 256), ["left_ptr", "arrow", "top_left_arrow"]),
-    "pointer": (paw_svg, (108 / 256, 46 / 256), ["hand1", "hand2", "pointing_hand",
-                                                 "9d800788f1b08800ae810202380a0822",
-                                                 "e29285e634086352946a0e7090d73106"]),
+    "default": (default_frames, ["left_ptr", "arrow", "top_left_arrow"]),
+    "pointer": (pointer_frames, ["hand1", "hand2", "pointing_hand",
+                                 "9d800788f1b08800ae810202380a0822",
+                                 "e29285e634086352946a0e7090d73106"]),
 }
 
 
@@ -88,19 +88,26 @@ def build(dest):
     theme = pathlib.Path(dest) / "NorkaOS-Paw"
     (theme / "cursors").mkdir(parents=True, exist_ok=True)
     (theme / "index.theme").write_text(
-        "[Icon Theme]\nName=NorkaOS Paw\nComment=Пушистая стрелка и крысиная лапа\nInherits=breeze_cursors\n",
+        "[Icon Theme]\nName=NorkaOS Paw\nComment=Пушистая стрелка, над ссылками крутится\nInherits=breeze_cursors\n",
         encoding="utf-8",
     )
     with tempfile.TemporaryDirectory() as tmp:
         tmp = pathlib.Path(tmp)
-        for name, (draw, (hx, hy), aliases) in CURSORS.items():
-            svg = tmp / f"{name}.svg"
-            svg.write_text(draw(), encoding="utf-8")
+        for name, (make_frames, aliases) in CURSORS.items():
             lines = []
-            for size in SIZES:
-                png = tmp / f"{name}-{size}.png"
-                subprocess.run(["rsvg-convert", "-w", str(size), "-h", str(size), "-o", str(png), str(svg)], check=True)
-                lines.append(f"{size} {round(hx * size)} {round(hy * size)} {png}")
+            for n, (svg_text, scale, (hx, hy), delay) in enumerate(make_frames()):
+                svg = tmp / f"{name}-{n}.svg"
+                svg.write_text(svg_text, encoding="utf-8")
+                for size in SIZES:
+                    px = size * scale
+                    png = tmp / f"{name}-{n}-{size}.png"
+                    subprocess.run(["rsvg-convert", "-w", str(px), "-h", str(px), "-o", str(png), str(svg)], check=True)
+                    line = f"{size} {round(hx * px)} {round(hy * px)} {png}"
+                    lines.append(f"{line} {delay}" if delay else line)
+                if n == 0:
+                    # Превью для проверки глазами
+                    subprocess.run(["rsvg-convert", "-w", "256", "-h", "256", "-o",
+                                    str(pathlib.Path(__file__).parent / f"preview-{name}.png"), str(svg)], check=True)
             conf = tmp / f"{name}.conf"
             conf.write_text("\n".join(lines) + "\n", encoding="utf-8")
             subprocess.run(["xcursorgen", str(conf), str(theme / "cursors" / name)], check=True)
@@ -108,9 +115,6 @@ def build(dest):
                 link = theme / "cursors" / alias
                 link.unlink(missing_ok=True)
                 link.symlink_to(name)
-            # Превью для проверки глазами
-            subprocess.run(["rsvg-convert", "-w", "256", "-h", "256", "-o",
-                            str(pathlib.Path(__file__).parent / f"preview-{name}.png"), str(svg)], check=True)
 
 
 build(sys.argv[1])
