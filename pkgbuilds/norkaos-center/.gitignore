@@ -1,0 +1,4 @@
+app/src-tauri/target/
+app/src-tauri/icons/
+app/src-tauri/gen/
+app/ui/img/

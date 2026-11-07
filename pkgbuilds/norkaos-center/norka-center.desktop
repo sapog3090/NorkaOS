@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Norka Center
+Name[ru]=Норка Центр
+Comment=Norka, panel, programs and snapshots
+Comment[ru]=Норка, панель, программы и снимки
+Exec=norka-center
+Icon=norkaos
+Terminal=false
+Categories=Settings;System;
+Keywords=norka;snapshot;rollback;panel;mascot;
+Keywords[ru]=норка;снимок;откат;панель;маскот;программы;

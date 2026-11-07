@@ -19,7 +19,12 @@ trap 'umount "$top"; rmdir "$top"' EXIT
 broken="@broken-$(date +%Y%m%d-%H%M%S)"
 mv "$top/@" "$top/$broken"
 btrfs subvolume snapshot "$top/@snapshots/$number/snapshot" "$top/@" >/dev/null
+# Снимок сделан посреди работы pacman, в нём остался его замок: без этого обновления после отката не пойдут
+rm -f "$top/@/var/lib/pacman/db.lck"
 cp "/boot/snapshots/$number/vmlinuz-$kernel" "/boot/snapshots/$number/initramfs-$kernel.img" /boot/
+# /var/log в своём подтоме и переживает откат: по этой записи Норка Центр предложит удалить старый корень
+echo "$broken" >> /var/log/norka-broken-roots
+chmod 644 /var/log/norka-broken-roots
 
 echo "Готово: система будет как в снимке $number. Старый корень сохранён как $broken."
 echo "Перезагрузи компьютер."

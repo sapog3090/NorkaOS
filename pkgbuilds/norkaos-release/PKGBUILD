@@ -1,5 +1,5 @@
 pkgname=norkaos-release
-pkgver=2
+pkgver=3
 pkgrel=1
 pkgdesc='Имя системы NorkaOS в os-release и приветствие в терминале'
 arch=('any')

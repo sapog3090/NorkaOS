@@ -1,0 +1,5 @@
+#!/bin/sh
+# Норка Привет при первом входе: не в живой системе и только пока его не закрыли
+[ -d /run/archiso ] && exit 0
+[ -e "${XDG_CONFIG_HOME:-$HOME/.config}/norka/hello-done" ] && exit 0
+exec norka-center --hello

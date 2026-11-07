@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Norka Center</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav id="nav">
+      <img class="logo" src="img/logo.svg" alt="">
+      <button data-page="norka" data-t="nav_norka"></button>
+      <button data-page="panel" data-t="nav_panel"></button>
+      <button data-page="apps" data-t="nav_apps"></button>
+      <button data-page="snapshots" data-t="nav_snapshots"></button>
+      <button data-page="about" data-t="nav_about"></button>
+      <img class="peek" src="img/peek.png" alt="">
+    </nav>
+
+    <!-- Норка Привет -->
+    <section id="hello" class="page">
+      <div class="hero">
+        <img src="img/norka.png" alt="">
+        <div>
+          <h1 data-t="hello_title"></h1>
+          <p data-t="hello_text"></p>
+          <div class="buttons left">
+            <button class="primary" data-go="apps" data-t="hello_start"></button>
+            <button data-action="skip" data-t="hello_skip"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="norka" class="page">
+      <h1 data-t="norka_title"></h1>
+      <p data-t="norka_text"></p>
+      <label class="switch"><input type="checkbox" id="norka-shown"><span data-t="norka_shown"></span></label>
+      <label class="switch"><input type="checkbox" id="terminal-hello"><span data-t="terminal_hello"></span></label>
+      <div class="buttons left"><button id="norka-corner" data-t="norka_corner"></button></div>
+      <p class="muted" data-t="norka_hint"></p>
+    </section>
+
+    <section id="panel" class="page">
+      <h1 data-t="panel_title"></h1>
+      <p data-t="panel_text"></p>
+      <h3 data-t="panel_position"></h3>
+      <div class="choices" id="panel-location">
+        <button data-value="bottom" data-t="pos_bottom"></button>
+        <button data-value="top" data-t="pos_top"></button>
+        <button data-value="left" data-t="pos_left"></button>
+      </div>
+      <h3 data-t="panel_style"></h3>
+      <div class="choices" id="panel-style">
+        <button data-value="dock" data-t="style_dock"></button>
+        <button data-value="bar" data-t="style_bar"></button>
+      </div>
+      <label class="switch"><input type="checkbox" id="panel-floating"><span data-t="panel_floating"></span></label>
+    </section>
+
+    <section id="apps" class="page">
+      <h1 data-t="apps_title"></h1>
+      <p data-t="apps_text"></p>
+      <div id="app-list" class="cards"></div>
+      <div id="apps-progress" hidden>
+        <div class="bar"><div id="bar"></div></div>
+        <p id="apps-step" class="muted"></p>
+        <pre id="apps-details" hidden></pre>
+      </div>
+      <div class="buttons">
+        <button id="apps-skip" data-action="skip" data-t="hello_skip"></button>
+        <button class="primary" id="apps-install" data-t="apps_install"></button>
+      </div>
+    </section>
+
+    <section id="tips" class="page">
+      <h1 data-t="tips_title"></h1>
+      <ul class="tips">
+        <li data-t="tip_menu"></li>
+        <li data-t="tip_norka"></li>
+        <li data-t="tip_snapshots"></li>
+        <li data-t="tip_center"></li>
+      </ul>
+      <div class="buttons"><button class="primary" data-action="close" data-t="tips_done"></button></div>
+    </section>
+
+    <section id="snapshots" class="page">
+      <h1 data-t="snap_title"></h1>
+      <p data-t="snap_text"></p>
+      <div id="snap-list" class="list"></div>
+      <div id="broken" class="card" hidden>
+        <p data-t="snap_broken"></p>
+        <div class="buttons left"><button id="clean-broken" data-t="snap_clean"></button></div>
+      </div>
+      <p id="snap-result" class="muted"></p>
+    </section>
+
+    <section id="about" class="page">
+      <div class="hero">
+        <img src="img/norka.png" alt="">
+        <div>
+          <h1>NorkaOS</h1>
+          <p id="about-version"></p>
+          <p data-t="about_text"></p>
+          <p class="muted">github.com/sapog3090/NorkaOS</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

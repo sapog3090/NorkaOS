@@ -1,6 +1,6 @@
 pkgname=norkaos-snapshots
 pkgver=1
-pkgrel=1
+pkgrel=3
 pkgdesc='Снимки NorkaOS перед обновлениями и откат из меню загрузки Limine'
 arch=('any')
 url='https://github.com/sapog3090/NorkaOS'

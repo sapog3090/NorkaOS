@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Снимки для Норка Центра, от root через pkexec:
+#   list            снимки snapper «до обновления» и старые корни после отката: «snapshot|номер|дата|описание», «broken|имя»
+#   rollback N      откат на снимок N (norka-rollback)
+#   clean-broken    удалить старые корни @broken-*
+set -euo pipefail
+((EUID == 0)) || { echo "нужен root" >&2; exit 1; }
+
+top() {
+  local device mnt
+  device="$(findmnt -no SOURCE /home | sed 's/\[.*//')"
+  mnt="$(mktemp -d)"
+  mount -o subvolid=5 "$device" "$mnt"
+  echo "$mnt"
+}
+
+case "${1:-}" in
+  list)
+    snapper --no-dbus -c root --csvout list --columns number,type,date,description 2>/dev/null |
+      awk -F, 'NR > 1 && $2 == "pre" { print "snapshot|" $1 "|" $3 "|" $4 }'
+    mnt="$(top)"
+    for dir in "$mnt"/@broken-*; do [[ -d "$dir" ]] && echo "broken|$(basename "$dir")"; done
+    umount "$mnt"; rmdir "$mnt"
+    ;;
+  rollback)
+    [[ "${2:-}" =~ ^[0-9]+$ ]] || { echo "номер снимка" >&2; exit 1; }
+    norka-rollback "$2"
+    ;;
+  clean-broken)
+    mnt="$(top)"
+    for dir in "$mnt"/@broken-*; do
+      [[ -d "$dir" ]] || continue
+      # Внутри старого корня могут быть вложенные подтома, их удаляем первыми
+      btrfs subvolume list -o "$dir" | awk '{ print $NF }' | sort -r | while read -r sub; do
+        btrfs subvolume delete "$mnt/$sub" >/dev/null
+      done
+      btrfs subvolume delete "$dir" >/dev/null
+      echo "deleted $(basename "$dir")"
+    done
+    umount "$mnt"; rmdir "$mnt"
+    : > /var/log/norka-broken-roots
+    ;;
+  *) echo "usage: norka-snapshots-admin list|rollback N|clean-broken" >&2; exit 1 ;;
+esac

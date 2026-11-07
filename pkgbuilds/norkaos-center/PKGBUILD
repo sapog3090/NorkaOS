@@ -1,0 +1,33 @@
+pkgname=norkaos-center
+pkgver=1
+pkgrel=1
+pkgdesc='Норка Центр и Норка Привет: настройки NorkaOS, программы и снимки'
+arch=('x86_64')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+depends=('webkit2gtk-4.1' 'gtk3' 'polkit' 'flatpak' 'snapper' 'norkaos-snapshots')
+makedepends=('cargo' 'librsvg')
+options=('!lto' '!debug')
+
+# Окно на Tauri. Картинки берутся из папки art, её кладёт сюда build-repo.sh
+build() {
+  cd "$startdir/app"
+  mkdir -p src-tauri/icons ui/img
+  rsvg-convert -w 256 -h 256 -o src-tauri/icons/icon.png "$startdir/art/logo/norka-icon.svg"
+  cp "$startdir/art/logo/norka-icon.svg" ui/img/logo.svg
+  cp "$startdir/art/mascot/norka-shy.png" ui/img/norka.png
+  cp "$startdir/art/mascot/norka-peek.png" ui/img/peek.png
+  cd src-tauri
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --locked
+}
+
+package() {
+  cd "$startdir"
+  install -Dm755 "$srcdir/target/release/norka-center" "$pkgdir/usr/bin/norka-center"
+  install -Dm755 norka-apps "$pkgdir/usr/lib/norka/norka-apps"
+  install -Dm755 norka-snapshots-admin "$pkgdir/usr/lib/norka/norka-snapshots-admin"
+  install -Dm755 norka-hello-autostart "$pkgdir/usr/lib/norka/norka-hello-autostart"
+  install -Dm644 org.norkaos.center.policy "$pkgdir/usr/share/polkit-1/actions/org.norkaos.center.policy"
+  install -Dm644 norka-center.desktop "$pkgdir/usr/share/applications/norka-center.desktop"
+  install -Dm644 norka-hello.desktop "$pkgdir/etc/xdg/autostart/norka-hello.desktop"
+}

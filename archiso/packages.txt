@@ -11,6 +11,7 @@ fastfetch
 norkaos-installer
 limine
 norkaos-snapshots
+norkaos-center
 plasma-desktop
 plasma-nm
 plasma-pa

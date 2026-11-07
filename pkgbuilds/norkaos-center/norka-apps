@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Ставит программы из окна «Норка Привет»: norka-apps games prism krita ...
+# Печатает «STEP n/N id» и «PROGRESS n» для окна. Запускается от root через pkexec
+set -uo pipefail
+
+declare -A pacman_pkgs=(
+  [games]="steam gamemode lib32-gamemode mangohud lib32-mangohud"
+  [prism]="prismlauncher jre21-openjdk jre17-openjdk"
+  [krita]="krita"
+  [office]="libreoffice-fresh libreoffice-fresh-ru"
+  [blender]="blender"
+  [video]="obs-studio kdenlive"
+  [torrent]="qbittorrent"
+)
+declare -A flatpaks=(
+  [vesktop]="dev.vencord.Vesktop"
+  [bottles]="com.usebottles.bottles"
+)
+
+((EUID == 0)) || { echo "ERROR нужен root"; exit 1; }
+ids=("$@")
+total=${#ids[@]}
+((total)) || exit 0
+failed=()
+
+for i in "${!ids[@]}"; do
+  id="${ids[$i]}"
+  echo "STEP $((i + 1))/$total $id"
+  echo "PROGRESS $((i * 100 / total))"
+  if [[ -n "${pacman_pkgs[$id]:-}" ]]; then
+    # shellcheck disable=SC2086
+    pacman -S --needed --noconfirm ${pacman_pkgs[$id]} >&2 || failed+=("$id")
+  elif [[ -n "${flatpaks[$id]:-}" ]]; then
+    flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo >&2
+    flatpak install --system --noninteractive -y flathub "${flatpaks[$id]}" >&2 || failed+=("$id")
+  else
+    echo "ERROR неизвестная программа $id" >&2
+    failed+=("$id")
+  fi
+done
+
+echo "PROGRESS 100"
+if ((${#failed[@]})); then
+  echo "FAILED ${failed[*]}"
+  exit 1
+fi
+echo "DONE"

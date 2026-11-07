@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Norka Hello
+Name[ru]=Норка Привет
+Exec=/usr/lib/norka/norka-hello-autostart
+Icon=norkaos
+Terminal=false
+NoDisplay=true
+X-KDE-autostart-phase=2
