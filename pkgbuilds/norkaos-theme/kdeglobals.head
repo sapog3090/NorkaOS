@@ -1,0 +1,7 @@
+[Icons]
+Theme=breeze-dark
+
+[KDE]
+LookAndFeelPackage=org.norkaos.desktop
+widgetStyle=Breeze
+

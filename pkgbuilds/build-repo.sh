@@ -15,6 +15,7 @@ useradd -m builder
 for dir in "$here"/*/; do
   name="$(basename "$dir")"
   cp -r "$dir" "/home/builder/$name"
+  cp -r "$here/../art" "/home/builder/$name/art"
   chown -R builder: "/home/builder/$name"
   su builder -c "cd /home/builder/$name && makepkg --nodeps --noconfirm"
   cp /home/builder/"$name"/*.pkg.tar.zst "$out/"

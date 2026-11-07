@@ -1,0 +1,14 @@
+pkgname=norkaos-theme
+pkgver=1
+pkgrel=1
+pkgdesc='Облик NorkaOS: цвета, обои, значок, настройки Plasma'
+arch=('any')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+depends=('plasma-desktop')
+
+# Файлы лежат рядом с PKGBUILD, build-repo.sh кладёт сюда же папку art
+package() {
+  cd "$startdir"
+  bash install-files.sh "$pkgdir"
+}

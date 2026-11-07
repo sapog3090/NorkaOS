@@ -3,6 +3,7 @@ linux-cachyos
 norkaos-keyring
 norkaos-mirrorlist
 norkaos-tweaks
+norkaos-theme
 plasma-desktop
 plasma-nm
 plasma-pa

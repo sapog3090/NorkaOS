@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [{ "Name": "NorkaOS" }],
+        "Description": "Тёмно-фиолетовый облик NorkaOS",
+        "Id": "org.norkaos.desktop",
+        "License": "GPL-3.0-only",
+        "Name": "NorkaOS",
+        "Version": "1.0"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell",
+    "X-Plasma-APIVersion": "2"
+}
