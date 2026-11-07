@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Norka Helper
+Name[ru]=Норка-помощник
+Name[uk]=Норка-помічник
+Name[pl]=Pomocnik Norka
+Comment=Local AI models for Norka
+Comment[ru]=Локальные ИИ-модели для Норки
+Exec=norka-center --helper
+Icon=norkaos
+Terminal=false
+Categories=Utility;
+Keywords=ai;chat;assistant;ollama;
+Keywords[ru]=ии;чат;помощник;нейросеть;

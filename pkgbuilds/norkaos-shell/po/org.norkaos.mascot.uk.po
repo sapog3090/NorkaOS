@@ -6,8 +6,8 @@ msgstr ""
 msgid "Hi! I'm Norka."
 msgstr "Привіт! Я Норка."
 
-msgid "Press Meta+N and I'll hide."
-msgstr "Натисни Meta+N, і я сховаюся."
+msgid "Press Meta+N to talk to me."
+msgstr "Натисни Meta+N, щоб поговорити зі мною."
 
 msgid "Is it snack time yet?"
 msgstr "Вже час перекусити?"
@@ -26,3 +26,9 @@ msgstr "Хрр… ще п'ять хвилиночок…"
 
 msgid "It's so hot in here! Your computer is working hard."
 msgstr "Як спекотно! Комп'ютер дуже старається."
+
+msgid "Talk to Norka"
+msgstr "Поговорити з Норкою"
+
+msgid "Hide Norka"
+msgstr "Сховати Норку"

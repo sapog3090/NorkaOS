@@ -1,11 +1,11 @@
 pkgname=norkaos-center
-pkgver=1
-pkgrel=5
+pkgver=2
+pkgrel=1
 pkgdesc='Норка Центр и Норка Привет: настройки NorkaOS, программы и снимки'
 arch=('x86_64')
 url='https://github.com/sapog3090/NorkaOS'
 license=('GPL-3.0-only')
-depends=('webkit2gtk-4.1' 'gtk3' 'polkit' 'flatpak' 'snapper' 'norkaos-snapshots' 'kdialog' 'libnotify')
+depends=('webkit2gtk-4.1' 'gtk3' 'polkit' 'flatpak' 'snapper' 'norkaos-snapshots' 'kdialog' 'libnotify' 'curl' 'procps-ng')
 makedepends=('cargo' 'librsvg')
 options=('!lto' '!debug')
 
@@ -25,6 +25,9 @@ package() {
   cd "$startdir"
   install -Dm755 "$srcdir/target/release/norka-center" "$pkgdir/usr/bin/norka-center"
   install -Dm755 norka "$pkgdir/usr/bin/norka"
+  install -Dm755 norka-chat "$pkgdir/usr/bin/norka-chat"
+  install -Dm644 norka-helper.desktop "$pkgdir/usr/share/applications/norka-helper.desktop"
+  install -Dm644 norka-chat.desktop "$pkgdir/usr/share/applications/norka-chat.desktop"
   install -Dm755 norka-apps "$pkgdir/usr/lib/norka/norka-apps"
   install -Dm755 norka-snapshots-admin "$pkgdir/usr/lib/norka/norka-snapshots-admin"
   install -Dm755 norka-hello-autostart "$pkgdir/usr/lib/norka/norka-hello-autostart"

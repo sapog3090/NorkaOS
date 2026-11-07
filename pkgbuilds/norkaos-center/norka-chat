@@ -1,0 +1,4 @@
+#!/bin/sh
+# Окно чата с Норкой: одно на сеанс, повторный вызов ничего не открывает
+pgrep -u "$(id -u)" -f "norka-center --chat" >/dev/null && exit 0
+exec norka-center --chat

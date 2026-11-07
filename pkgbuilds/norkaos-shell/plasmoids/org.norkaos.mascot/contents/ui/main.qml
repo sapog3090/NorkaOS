@@ -1,7 +1,8 @@
 /*
  * Норка на рабочем столе. Дышит, на клик подпрыгивает и что-нибудь говорит,
  * ночью спит, при сильной нагрузке на процессор потеет.
- * Сочетание клавиш виджета (по умолчанию Meta+N) прячет её и возвращает, это помнится после перезагрузки
+ * Сочетание клавиш виджета (по умолчанию Meta+N) открывает чат с Норкой-помощником.
+ * Спрятать Норку можно правым кликом или в Норка Центре, это помнится после перезагрузки
  */
 import QtQuick
 import QtMultimedia
@@ -9,6 +10,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.ksysguard.sensors as Sensors
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
+import org.kde.plasma.plasma5support as P5Support
 
 PlasmoidItem {
     id: root
@@ -20,7 +22,7 @@ PlasmoidItem {
 
     readonly property var phrases: [
         i18n("Hi! I'm Norka."),
-        i18n("Press Meta+N and I'll hide."),
+        i18n("Press Meta+N to talk to me."),
         i18n("Is it snack time yet?"),
         i18n("Your files are safe in my burrow."),
         i18n("I like it when you click me."),
@@ -33,9 +35,29 @@ PlasmoidItem {
     Connections {
         target: Plasmoid
         function onActivated() {
-            Plasmoid.configuration.hidden = !Plasmoid.configuration.hidden
+            launcher.connectSource("norka-chat")
         }
     }
+
+    // Запуск окна чата: скрипт norka-chat сам следит, чтобы окно было одно
+    P5Support.DataSource {
+        id: launcher
+        engine: "executable"
+        onNewData: (sourceName) => disconnectSource(sourceName)
+    }
+
+    Plasmoid.contextualActions: [
+        PlasmaCore.Action {
+            text: i18n("Talk to Norka")
+            icon.name: "dialog-messages"
+            onTriggered: launcher.connectSource("norka-chat")
+        },
+        PlasmaCore.Action {
+            text: i18n("Hide Norka")
+            icon.name: "view-hidden"
+            onTriggered: Plasmoid.configuration.hidden = true
+        }
+    ]
 
     // Место на рабочем столе хранится в пикселях от левого верхнего угла, поэтому при смене разрешения
     // (полный экран, другой монитор) Норка уезжала. Прижимаем её к правому нижнему углу свободной области,

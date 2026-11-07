@@ -13,6 +13,8 @@ declare -A pacman_pkgs=(
   [torrent]="qbittorrent"
   [wine]="wine wine-mono wine-gecko winetricks"
   # Драйвер NVIDIA не влезает в образ (он ~1 ГБ, а файл релиза на GitHub до 2 ГБ), ставится отсюда
+  # Движок для Норки-помощника: Ollama, видеокарту подключает Vulkan (и NVIDIA, и AMD)
+  [ai]="ollama ollama-vulkan"
   [nvidia]="linux-cachyos-nvidia-open nvidia-utils nvidia-settings lib32-nvidia-utils"
 )
 declare -A flatpaks=(
@@ -37,6 +39,13 @@ for i in "${!ids[@]}"; do
   if [[ -n "${pacman_pkgs[$id]:-}" ]]; then
     # shellcheck disable=SC2086
     pacman -S --needed --noconfirm ${pacman_pkgs[$id]} >&2 || failed+=("$id")
+    if [[ "$id" == ai ]]; then
+      printf '[Service]\nEnvironment=OLLAMA_VULKAN=1\n' | install -Dm644 /dev/stdin /etc/systemd/system/ollama.service.d/norka.conf
+      systemctl daemon-reload
+      systemctl enable --now ollama.service >&2 || failed+=("$id")
+      # Служба поднимается пару секунд, окно сразу спросит её о моделях
+      for _ in $(seq 20); do curl -fs http://127.0.0.1:11434/api/version >/dev/null && break; sleep 0.5; done
+    fi
   elif [[ -n "${flatpaks[$id]:-}" ]]; then
     flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo >&2
     flatpak install --system --noninteractive -y flathub "${flatpaks[$id]}" >&2 || failed+=("$id")

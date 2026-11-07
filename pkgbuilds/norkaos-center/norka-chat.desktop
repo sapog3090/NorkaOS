@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Chat with Norka
+Name[ru]=Чат с Норкой
+Name[uk]=Чат з Норкою
+Name[pl]=Czat z Norką
+Exec=norka-chat
+Icon=norkaos
+Terminal=false
+Categories=Utility;

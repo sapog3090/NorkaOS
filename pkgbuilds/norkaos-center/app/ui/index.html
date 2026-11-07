@@ -14,6 +14,7 @@
       <button data-page="panel" data-t="nav_panel"></button>
       <button data-page="apps" data-t="nav_apps"></button>
       <button data-page="snapshots" data-t="nav_snapshots"></button>
+      <button data-page="helper" data-t="nav_helper"></button>
       <button data-page="about" data-t="nav_about"></button>
       <img class="peek" src="img/peek.png" alt="">
     </nav>
@@ -97,6 +98,30 @@
       <p id="snap-result" class="muted"></p>
     </section>
 
+    <!-- Norka Helper: движок и библиотека моделей -->
+    <section id="helper" class="page">
+      <h1 data-t="helper_title"></h1>
+      <p data-t="helper_text"></p>
+      <div id="engine" class="card" hidden>
+        <p data-t="engine_missing"></p>
+        <div class="buttons left"><button class="primary" id="engine-install" data-t="engine_install"></button></div>
+        <p id="engine-step" class="muted"></p>
+      </div>
+      <p id="hardware" class="muted"></p>
+      <div id="models" class="list"></div>
+      <div class="buttons"><button class="primary" id="open-chat" data-t="open_chat"></button></div>
+    </section>
+
+    <!-- Чат с Норкой -->
+    <section id="chat" class="page">
+      <div id="messages"></div>
+      <p id="chat-empty" class="muted"></p>
+      <form id="chat-form">
+        <textarea id="chat-input" rows="2"></textarea>
+        <button class="primary" id="chat-send" type="submit">➤</button>
+      </form>
+    </section>
+
     <section id="about" class="page">
       <div class="hero">
         <img src="img/norka.png" alt="">
@@ -110,5 +135,6 @@
     </section>
   </main>
   <script src="app.js"></script>
+  <script src="ai.js"></script>
 </body>
 </html>

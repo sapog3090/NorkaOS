@@ -40,6 +40,8 @@ function show(name) {
   if (name === "snapshots") loadSnapshots();
   if (name === "panel") loadPanel();
   if (name === "norka") loadNorka();
+  if (name === "helper") loadHelper();
+  if (name === "chat") loadChat();
 }
 
 async function close() {
@@ -226,6 +228,9 @@ $("clean-broken").onclick = async () => {
   if (mode === "hello") {
     document.body.classList.add("hello-mode");
     show("hello");
+  } else if (mode === "helper" || mode === "chat") {
+    document.body.classList.add(`${mode}-mode`);
+    show(mode);
   } else {
     $("apps-skip").hidden = true;
     show("norka");

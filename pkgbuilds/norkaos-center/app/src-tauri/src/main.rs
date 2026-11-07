@@ -8,6 +8,8 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use tauri::{AppHandle, Emitter};
 
+mod ai;
+
 const APPS_HELPER: &str = "/usr/lib/norka/norka-apps";
 const SNAPSHOTS_HELPER: &str = "/usr/lib/norka/norka-snapshots-admin";
 
@@ -31,7 +33,7 @@ struct Snapshots {
     broken: Vec<String>,
 }
 
-fn config_dir() -> PathBuf {
+pub fn config_dir() -> PathBuf {
     std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".config"))
@@ -49,7 +51,13 @@ fn output(cmd: &str, args: &[&str]) -> Result<String, String> {
 
 #[tauri::command]
 fn mode() -> String {
-    if std::env::args().any(|a| a == "--hello") { "hello".into() } else { "center".into() }
+    let args: Vec<String> = std::env::args().collect();
+    for (flag, name) in [("--hello", "hello"), ("--helper", "helper"), ("--chat", "chat")] {
+        if args.iter().any(|a| a == flag) {
+            return name.into();
+        }
+    }
+    "center".into()
 }
 
 #[tauri::command]
@@ -184,6 +192,11 @@ fn needs_nvidia() -> bool {
 }
 
 #[tauri::command]
+fn open_chat() {
+    let _ = Command::new("norka-chat").spawn();
+}
+
+#[tauri::command]
 fn jokes() -> bool {
     !config_dir().join("no-jokes").exists()
 }
@@ -220,6 +233,21 @@ fn main() {
         std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     }
     tauri::Builder::default()
+        .setup(|app| {
+            use tauri::Manager;
+            if mode() == "chat" {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_title("Norka");
+                    let _ = window.set_size(tauri::LogicalSize::new(440.0, 620.0));
+                    let _ = window.set_min_size(Some(tauri::LogicalSize::new(360.0, 420.0)));
+                }
+            } else if mode() == "helper" {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_title("Norka Helper");
+                }
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             mode,
             finish_hello,
@@ -231,6 +259,14 @@ fn main() {
             terminal_hello,
             set_terminal_hello,
             needs_nvidia,
+            open_chat,
+            ai::ai_status,
+            ai::ai_hardware,
+            ai::ai_pull,
+            ai::ai_delete,
+            ai::ai_chat,
+            ai::ai_default_model,
+            ai::ai_set_default_model,
             jokes,
             set_jokes,
             reboot,
