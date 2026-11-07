@@ -1,0 +1,17 @@
+// fastfetch в NorkaOS: наше лого вместо арчевского
+{
+  "logo": {
+    "type": "file-raw",
+    "source": "/usr/share/norkaos/logo.ansi",
+    "width": 26,
+    "height": 13,
+    "padding": { "top": 1, "right": 3 }
+  },
+  "display": {
+    "color": { "keys": "magenta", "title": "magenta" }
+  },
+  "modules": [
+    "title", "separator", "os", "kernel", "uptime", "packages", "shell",
+    "de", "wm", "terminal", "cpu", "gpu", "memory", "disk", "break", "colors"
+  ]
+}

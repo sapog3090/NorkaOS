@@ -1,0 +1,6 @@
+#!/bin/sh
+# Приветствие NorkaOS: лого и Норка цветными полублоками.
+# В текстовой консоли нет truecolor, а в узком окне картинка поедет, там молчим
+[ "$TERM" = linux ] && exit 0
+[ "$(tput cols 2>/dev/null || echo 80)" -ge 66 ] || exit 0
+cat /usr/share/norkaos/hello.ansi

@@ -1,6 +1,6 @@
 pkgname=norkaos-theme
-pkgver=3
-pkgrel=2
+pkgver=4
+pkgrel=1
 pkgdesc='Облик NorkaOS: цвета, обои, значок, настройки Plasma'
 arch=('any')
 url='https://github.com/sapog3090/NorkaOS'

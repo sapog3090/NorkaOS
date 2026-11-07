@@ -85,6 +85,12 @@ echo norka > "$root/etc/hostname"
 
 # Пользователь живой системы
 mkdir -p "$root/home/norka"
+# Аватар Норки: в домашней папке для Plasma, отдельно для SDDM и AccountsService, им домашняя папка закрыта
+face="$here/../art/mascot/norka-face.png"
+install -Dm644 "$face" "$root/home/norka/.face.icon"
+install -Dm644 "$face" "$root/usr/share/sddm/faces/norka.face.icon"
+install -Dm644 "$face" "$root/var/lib/AccountsService/icons/norka"
+printf '[User]\nIcon=/var/lib/AccountsService/icons/norka\n' | install -Dm644 /dev/stdin "$root/var/lib/AccountsService/users/norka"
 echo 'norka:x:1000:1000:Norka:/home/norka:/bin/bash' >> "$root/etc/passwd"
 echo 'norka::14871::::::' >> "$root/etc/shadow"
 

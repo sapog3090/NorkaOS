@@ -6,6 +6,7 @@ norkaos-tweaks
 norkaos-theme
 norkaos-release
 norkaos-plymouth
+fastfetch
 plasma-desktop
 plasma-nm
 plasma-pa

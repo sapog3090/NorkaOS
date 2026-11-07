@@ -30,3 +30,7 @@ install -m644 xdg/plasmarc xdg/ksplashrc xdg/kscreenlockerrc xdg/kcminputrc "$de
 # Экран входа: тема breeze из plasma-desktop, фон наш
 install -Dm644 sddm/10-norkaos.conf "$dest/etc/sddm.conf.d/10-norkaos.conf"
 install -Dm644 sddm/theme.conf.user "$share/sddm/themes/breeze/theme.conf.user"
+
+# Аватар по умолчанию: голова Норки. Новые пользователи получают его из skel
+install -Dm644 art/mascot/norka-face.png "$share/norkaos/norka-face.png"
+install -Dm644 art/mascot/norka-face.png "$dest/etc/skel/.face.icon"
