@@ -31,14 +31,17 @@ launcher.globalShortcut = "Alt+F1";
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
-// Установщик есть только в живой системе: в установленной его значок сам пропадёт
-tasks.writeConfig("launchers", [
-    "applications:norka-installer.desktop",
+var launchers = [
     "preferred://browser",
     "applications:org.kde.dolphin.desktop",
     "applications:kitty.desktop",
     "applications:systemsettings.desktop"
-]);
+];
+// Установщик есть только в живой системе, в установленной на его месте был бы пустой значок
+if (applicationExists("norka-installer.desktop")) {
+    launchers.unshift("applications:norka-installer.desktop");
+}
+tasks.writeConfig("launchers", launchers);
 
 panel.addWidget("org.kde.plasma.marginsseparator");
 panel.addWidget("org.kde.plasma.systemtray");

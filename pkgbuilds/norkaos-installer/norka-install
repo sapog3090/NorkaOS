@@ -53,8 +53,9 @@ say "Размечаю диск"
 if [[ "$mode" == whole ]]; then
   wipefs -af "$disk" >/dev/null
   sgdisk --zap-all "$disk" >/dev/null
-  sgdisk -n 1:0:+1G -t 1:ef00 -c 1:NorkaBoot -n 2:0:0 -t 2:8300 -c 2:NorkaOS "$disk" >/dev/null
-  boot_num=1 root_num=2
+  # Раздел BIOS boot в 1 МБ нужен Limine для загрузки в режиме BIOS с диска GPT, на UEFI он просто лежит
+  sgdisk -n 1:0:+1M -t 1:ef02 -c 1:BIOSBoot -n 2:0:+1G -t 2:ef00 -c 2:NorkaBoot -n 3:0:0 -t 3:8300 -c 3:NorkaOS "$disk" >/dev/null
+  bios_num=1 boot_num=2 root_num=3
 else
   # Свободное место: два новых раздела в самой большой пустой области, остальное не трогаем
   [[ "$(blkid -po value -s PTTYPE "$disk")" == gpt ]] || die "рядом с другой системой ставим только на диск GPT"
@@ -63,13 +64,17 @@ else
   [[ -n "${free_start:-}" ]] || die "на диске нет свободного места"
   sectors=$((free_end - free_start))
   (( sectors * 512 >= 25 * 1024 ** 3 )) || die "свободно меньше 25 ГБ"
-  boot_num=$(( $(sgdisk -p "$disk" | awk '/^ +[0-9]+ / { n = $1 } END { print n + 0 }') + 1 ))
+  bios_num=$(( $(sgdisk -p "$disk" | awk '/^ +[0-9]+ / { n = $1 } END { print n + 0 }') + 1 ))
+  boot_num=$((bios_num + 1))
   root_num=$((boot_num + 1))
-  sgdisk -n "$boot_num:$free_start:+1G" -t "$boot_num:ef00" -c "$boot_num:NorkaBoot" \
+  sgdisk -n "$bios_num:$free_start:+1M" -t "$bios_num:ef02" -c "$bios_num:BIOSBoot" \
+         -n "$boot_num:0:+1G" -t "$boot_num:ef00" -c "$boot_num:NorkaBoot" \
          -n "$root_num:0:$free_end" -t "$root_num:8300" -c "$root_num:NorkaOS" "$disk" >/dev/null
 fi
 partprobe "$disk"; udevadm settle
 boot_part="$(part "$boot_num")" root_part="$(part "$root_num")"
+# Новые разделы могли лечь на место старых: стираем остатки их подписей, иначе Limine откажется ставиться
+wipefs -aq "$(part "$bios_num")" "$boot_part" "$root_part"
 echo "PROGRESS 5"
 
 say "Создаю файловые системы"
@@ -212,7 +217,7 @@ if [[ "$firmware" == uefi ]]; then
   efibootmgr --create --disk "$disk" --part "$boot_num" --label NorkaOS --loader '\EFI\limine\BOOTX64.EFI' >/dev/null || true
 else
   install -Dm644 /usr/share/limine/limine-bios.sys "$target/boot/limine/limine-bios.sys"
-  limine bios-install "$disk" >/dev/null
+  limine bios-install "$disk" "$bios_num" >/dev/null
 fi
 echo "PROGRESS 97"
 

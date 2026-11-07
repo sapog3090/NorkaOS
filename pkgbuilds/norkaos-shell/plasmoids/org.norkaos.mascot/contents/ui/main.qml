@@ -36,6 +36,78 @@ PlasmoidItem {
         }
     }
 
+    // Место на рабочем столе хранится в пикселях от левого верхнего угла, поэтому при смене разрешения
+    // (полный экран, другой монитор) Норка уезжала. Прижимаем её к правому нижнему углу свободной области,
+    // пока её не перетащили руками
+    property Item container: null
+    readonly property rect freeArea: Plasmoid.containment ? Plasmoid.containment.availableScreenRect : Qt.rect(0, 0, 0, 0)
+
+    function findContainer() {
+        for (let item = root.parent; item; item = item.parent) {
+            if (item.layout !== undefined && item.dragActive !== undefined) {
+                return item
+            }
+        }
+        return null
+    }
+
+    function snapToCorner() {
+        if (!container) {
+            container = findContainer()
+        }
+        if (!container || !Plasmoid.configuration.stickToCorner || freeArea.width <= 0) {
+            return
+        }
+        const margin = Kirigami.Units.gridUnit
+        const x = Math.round(freeArea.x + freeArea.width - container.width - margin)
+        const y = Math.round(freeArea.y + freeArea.height - container.height - margin)
+        // Рабочий стол округляет позицию до своей сетки, поэтому мелкую разницу не трогаем
+        const tolerance = Kirigami.Units.gridUnit * 2
+        if (Math.abs(container.x - x) > tolerance || Math.abs(container.y - y) > tolerance) {
+            // Контейнер переезжает с анимацией, а рабочий стол запоминает позицию для каждого разрешения
+            container.x = x
+            container.y = y
+            container.layout.save()
+        }
+    }
+
+    onFreeAreaChanged: snapTimer.restart()
+
+    // Рабочий стол раскладывает виджеты после смены разрешения с задержкой, поэтому прижимаемся дважды
+    Timer {
+        id: snapTimer
+        interval: 300
+        onTriggered: {
+            root.snapToCorner()
+            snapAgain.restart()
+        }
+    }
+    Timer {
+        id: snapAgain
+        interval: 1500
+        onTriggered: root.snapToCorner()
+    }
+
+    Component.onCompleted: {
+        container = findContainer()
+        snapTimer.restart()
+    }
+
+    Connections {
+        target: root.container
+        function onDragActiveChanged() {
+            // Перетащили мышью: дальше стоит там, куда поставили
+            if (!root.container.dragActive) {
+                Plasmoid.configuration.stickToCorner = false
+            }
+        }
+        function onWidthChanged() { snapTimer.restart() }
+        function onHeightChanged() { snapTimer.restart() }
+        // Рабочий стол сам переставил виджет (новое разрешение): возвращаем в угол
+        function onXChanged() { if (!root.container.dragActive) snapTimer.restart() }
+        function onYChanged() { if (!root.container.dragActive) snapTimer.restart() }
+    }
+
     Sensors.Sensor {
         id: cpu
         sensorId: "cpu/all/usage"

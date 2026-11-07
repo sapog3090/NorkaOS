@@ -1,6 +1,6 @@
 pkgname=norkaos-installer
 pkgver=1
-pkgrel=2
+pkgrel=3
 pkgdesc='Установщик NorkaOS: копирует живую систему на диск без интернета'
 arch=('x86_64')
 url='https://github.com/sapog3090/NorkaOS'

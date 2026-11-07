@@ -1,5 +1,5 @@
 pkgname=norkaos-shell
-pkgver=1
+pkgver=2
 pkgrel=1
 pkgdesc='Оболочка NorkaOS: Норка на рабочем столе и меню'
 arch=('any')

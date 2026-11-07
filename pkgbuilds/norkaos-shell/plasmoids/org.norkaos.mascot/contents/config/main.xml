@@ -7,5 +7,8 @@
     <entry name="hidden" type="Bool">
       <default>false</default>
     </entry>
+    <entry name="stickToCorner" type="Bool">
+      <default>true</default>
+    </entry>
   </group>
 </kcfg>
