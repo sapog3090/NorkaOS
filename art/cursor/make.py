@@ -54,24 +54,23 @@ def arrow_svg():
 
 
 def paw_svg():
-    # Крысиная передняя лапа указывает вверх: длинный палец, три поджатых, пушистое запястье
+    # Отпечаток крысиной лапки: пушистая подушечка и четыре пальчика, наклон влево, кликает верхний пальчик
+    palm = [(128 + 64 * math.cos(t / 18 * math.pi), 166 + 52 * math.sin(t / 18 * math.pi)) for t in range(36)]
+    toes = [(70, 104, 19, 25), (104, 72, 20, 27), (152, 72, 20, 27), (186, 104, 19, 25)]
+    toe_fur = "".join(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}"/>' for x, y, rx, ry in toes)
+    toe_pad = "".join(f'<ellipse cx="{x}" cy="{y + 4}" rx="{rx - 8}" ry="{ry - 10}"/>' for x, y, rx, ry in toes)
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
 <defs><linearGradient id="f" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="{FUR}"/><stop offset="1" stop-color="{FUR_DARK}"/></linearGradient></defs>
-<g stroke="{LINE}" stroke-width="9" stroke-linejoin="round" stroke-linecap="round" fill="url(#f)">
-<path d="{fluffy([(70, 170), (196, 170), (190, 248), (76, 248)], tuft=6, step=16)}"/>
-<path d="M92 26 C78 26 74 38 74 50 L74 150 L112 150 L112 50 C112 38 106 26 92 26 Z"/>
-<ellipse cx="128" cy="124" rx="24" ry="30"/>
-<ellipse cx="160" cy="130" rx="22" ry="28"/>
-<ellipse cx="188" cy="142" rx="19" ry="24"/>
-<path d="M66 132 C66 104 92 96 128 100 C170 102 210 120 210 158 C210 196 176 212 132 212 C92 212 66 196 66 158 Z"/>
+<g transform="rotate(-25 128 150)">
+<g stroke="{LINE}" stroke-width="9" stroke-linejoin="round" fill="url(#f)">
+{toe_fur}
+<path d="{fluffy(palm, tuft=5, step=14)}"/>
 </g>
 <g fill="{PAD}">
-<ellipse cx="93" cy="44" rx="11" ry="12"/>
-<ellipse cx="128" cy="106" rx="11" ry="9"/>
-<ellipse cx="160" cy="112" rx="10" ry="8"/>
-<ellipse cx="188" cy="126" rx="9" ry="7"/>
-<ellipse cx="138" cy="166" rx="34" ry="24"/>
+{toe_pad}
+<path d="M128 146 C104 146 92 166 96 182 C100 196 116 196 128 190 C140 196 156 196 160 182 C164 166 152 146 128 146 Z"/>
+</g>
 </g>
 </svg>"""
 
@@ -79,7 +78,7 @@ def paw_svg():
 # Имя курсора → картинка, точка клика в долях от размера, синонимы
 CURSORS = {
     "default": (arrow_svg, (28 / 256, 20 / 256), ["left_ptr", "arrow", "top_left_arrow"]),
-    "pointer": (paw_svg, (92 / 256, 24 / 256), ["hand1", "hand2", "pointing_hand",
+    "pointer": (paw_svg, (108 / 256, 46 / 256), ["hand1", "hand2", "pointing_hand",
                                                  "9d800788f1b08800ae810202380a0822",
                                                  "e29285e634086352946a0e7090d73106"]),
 }
