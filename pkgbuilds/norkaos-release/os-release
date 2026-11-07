@@ -1,0 +1,10 @@
+NAME="NorkaOS"
+PRETTY_NAME="NorkaOS"
+ID=norkaos
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;183;148;244"
+HOME_URL="https://github.com/sapog3090/NorkaOS"
+SUPPORT_URL="https://github.com/sapog3090/NorkaOS/discussions"
+BUG_REPORT_URL="https://github.com/sapog3090/NorkaOS/issues"
+LOGO=norkaos

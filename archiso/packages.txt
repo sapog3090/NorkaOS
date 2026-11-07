@@ -4,6 +4,7 @@ norkaos-keyring
 norkaos-mirrorlist
 norkaos-tweaks
 norkaos-theme
+norkaos-release
 plasma-desktop
 plasma-nm
 plasma-pa

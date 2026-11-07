@@ -1,0 +1,15 @@
+pkgname=norkaos-release
+pkgver=1
+pkgrel=1
+pkgdesc='Имя системы NorkaOS в os-release'
+arch=('any')
+url='https://github.com/sapog3090/NorkaOS'
+license=('GPL-3.0-only')
+depends=('filesystem')
+source=('os-release' 'norkaos-release.hook')
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+  install -Dm644 os-release "$pkgdir/usr/share/norkaos/os-release"
+  install -Dm644 norkaos-release.hook "$pkgdir/usr/share/libalpm/hooks/norkaos-release.hook"
+}

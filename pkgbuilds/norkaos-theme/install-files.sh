@@ -22,4 +22,8 @@ install -Dm644 art/logo/norka-logo.svg "$share/pixmaps/norkaos-logo.svg"
 install -d "$dest/etc/xdg"
 cat kdeglobals.head NorkaOS.colors > "$dest/etc/xdg/kdeglobals"
 chmod 644 "$dest/etc/xdg/kdeglobals"
-install -m644 xdg/plasmarc xdg/ksplashrc "$dest/etc/xdg/"
+install -m644 xdg/plasmarc xdg/ksplashrc xdg/kscreenlockerrc "$dest/etc/xdg/"
+
+# Экран входа: тема breeze из plasma-desktop, фон наш
+install -Dm644 sddm/10-norkaos.conf "$dest/etc/sddm.conf.d/10-norkaos.conf"
+install -Dm644 sddm/theme.conf.user "$share/sddm/themes/breeze/theme.conf.user"
