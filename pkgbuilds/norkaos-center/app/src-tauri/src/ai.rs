@@ -154,7 +154,8 @@ pub fn ai_chat(app: AppHandle, model: String, messages: Vec<Value>, think: Optio
             .post(&format!("{OLLAMA}/api/chat"))
             .send_json({
                 // Отключать раздумья можно только у моделей, которые их умеют, иначе Ollama ругается
-                let mut body = json!({ "model": model, "messages": messages, "stream": true });
+                // При температуре 1 маленькие модели несут отсебятину и выдумывают, что что-то сделали
+                let mut body = json!({ "model": model, "messages": messages, "stream": true, "options": { "temperature": 0.5 } });
                 if let Some(think) = think {
                     body["think"] = json!(think);
                 }
@@ -176,6 +177,28 @@ pub fn ai_chat(app: AppHandle, model: String, messages: Vec<Value>, think: Optio
             }
         }
         emit("done", String::new());
+    });
+    Ok(())
+}
+
+/// Кнопка в чате. Только этот список и только по нажатию человека: текст модели в команду не попадает никогда
+#[tauri::command]
+pub fn ai_run(action: String) -> Result<(), String> {
+    let (program, args): (&str, Vec<&str>) = match action.as_str() {
+        "terminal" => ("kitty", vec![]),
+        // Из меню PATH бывает без ~/.local/bin, а --hold оставляет окно открытым, если claude не установлен
+        "claude" => ("kitty", vec!["--hold", "sh", "-lc", "PATH=\"$HOME/.local/bin:$PATH\" exec claude"]),
+        "browser" => ("firefox", vec![]),
+        "files" => ("dolphin", vec![]),
+        "settings" => ("systemsettings", vec![]),
+        "center" => ("norka-center", vec![]),
+        "update" => ("kitty", vec!["--hold", "norka", "update"]),
+        _ => return Err(format!("unknown action: {action}")),
+    };
+    let mut child = Command::new(program).args(args).spawn().map_err(|e| format!("{program}: {e}"))?;
+    // Забираем завершившийся процесс, чтобы не оставался зомби
+    std::thread::spawn(move || {
+        let _ = child.wait();
     });
     Ok(())
 }

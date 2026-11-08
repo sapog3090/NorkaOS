@@ -98,5 +98,15 @@
   "chat_not_running": "Norka's engine is not running. Open Norka Helper.",
   "chat_placeholder": "Ask Norka something…",
   "chat_hello": "Hi! I'm Norka. Ask me anything about your computer 💜",
-  "chat_error": "Norka got confused: %1"
+  "chat_error": "Norka got confused: %1",
+  "run_terminal": "Open terminal",
+  "run_claude": "Start Claude in the terminal",
+  "run_browser": "Open browser",
+  "run_files": "Open files",
+  "run_settings": "Open settings",
+  "run_center": "Open Norka Center",
+  "run_update": "Update the system",
+  "run_started": "Started",
+  "run_failed": "Could not start: %1",
+  "run_no_button": "I can't start that myself. Look for it in the menu with the Meta key."
 }

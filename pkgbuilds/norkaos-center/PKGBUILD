@@ -1,5 +1,5 @@
 pkgname=norkaos-center
-pkgver=4
+pkgver=5
 pkgrel=1
 pkgdesc='Норка Центр и Норка Привет: настройки NorkaOS, программы и снимки'
 arch=('x86_64')

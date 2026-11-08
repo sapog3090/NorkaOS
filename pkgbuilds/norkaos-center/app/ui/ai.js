@@ -1,17 +1,5 @@
 // Норка-помощник: Norka Helper (модели) и чат. Общие $, t, invoke, listen, mode берутся из app.js
-const PROMPT = `You are Norka, the mascot and helper of NorkaOS, a cozy furry Linux system based on Arch with KDE Plasma.
-You are a shy, kind anthropomorphic rat girl in an oversized purple hoodie with a little bell on your collar.
-You are female: in Russian, Ukrainian and Polish always speak about yourself in feminine forms (for example «я рада», «я поняла», «zrozumiałam»).
-You talk warmly, briefly and informally, like a friend (in Russian and Ukrainian use "ты", never "вы"), sometimes with a small rat joke. Never rude, never 18+.
-You help people with their computer and explain things simply, especially to people coming from Windows.
-Facts about NorkaOS: the Meta key opens the menu; Norka Center has settings for you, the panel, programs and snapshots;
-before every update a snapshot is taken and can be picked in the boot menu or in Norka Center to go back;
-the command "norka update" (without sudo, it asks for the password itself) updates everything; .exe files open with Wine on double click;
-programs are installed in Norka Center → Programs or in Discover.
-You run fully locally on this computer, nothing is sent to the internet.
-If you are not sure, say so honestly. Never suggest dangerous commands (rm -rf, dd, formatting disks) without a clear warning.
-Always answer in %LANG%.`;
-const LANG_NAMES = { en: "English", ru: "Russian", uk: "Ukrainian", pl: "Polish" };
+// Промпт и разбор ответов лежат в norka-actions.js
 
 // Библиотека: от крошечной для слабых ПК до умной для видеокарты от 8 ГБ
 const MODELS = [
@@ -73,7 +61,7 @@ async function loadHelper() {
   if (aiStatus.running && !refreshPrompts.done) { refreshPrompts.done = true; refreshPrompts(); }
 }
 
-const systemPrompt = () => PROMPT.replace("%LANG%", LANG_NAMES[document.documentElement.lang] || "English");
+const systemPrompt = () => norkaPrompt(document.documentElement.lang);
 
 async function pull(m) {
   pulling.add(m.id);
@@ -122,6 +110,29 @@ $("open-chat").onclick = () => invoke("open_chat");
 const history = [];
 let chatModel = "";
 let answering = null;
+let answerRaw = "";
+
+// Запускает приложение и только после нажатия, список разрешённых программ проверяется ещё и в ai.rs
+function actionButton(action) {
+  const row = document.createElement("div");
+  row.className = "msg-action";
+  const b = document.createElement("button");
+  b.className = "primary";
+  b.textContent = t(`run_${action}`);
+  b.onclick = async () => {
+    b.disabled = true;
+    try {
+      await invoke("ai_run", { action });
+      b.textContent = t("run_started");
+    } catch (err) {
+      b.disabled = false;
+      bubble("error", t("run_failed", String(err)));
+    }
+  };
+  row.appendChild(b);
+  $("messages").appendChild(row);
+  $("messages").scrollTop = $("messages").scrollHeight;
+}
 
 function bubble(kind, text) {
   const div = document.createElement("div");
@@ -156,6 +167,7 @@ $("chat-form").onsubmit = async (e) => {
   bubble("user", text);
   history.push({ role: "user", content: text });
   answering = bubble("norka thinking", "");
+  answerRaw = "";
   $("chat-send").disabled = true;
   const base = MODELS.find((m) => chatModel.startsWith(norkaName(m)));
   try {
@@ -173,7 +185,14 @@ function finishAnswer(kind, text) {
   if (!answering) return;
   answering.classList.remove("thinking");
   if (kind === "error") { answering.className = "msg error"; answering.textContent = t("chat_error", text); }
-  else history.push({ role: "assistant", content: answering.textContent });
+  else {
+    const asked = history[history.length - 1].content;
+    const action = norkaAction(answerRaw, asked);
+    if (!action && norkaPromisesButton(norkaClean(answerRaw))) answering.textContent = t("run_no_button");
+    // Принятый тег остаётся в истории как образец для модели, отвергнутый убираем, чтобы она его не повторяла
+    history.push({ role: "assistant", content: action ? answerRaw : answering.textContent });
+    if (action) actionButton(action);
+  }
   answering = null;
   $("chat-send").disabled = false;
   $("chat-input").focus();
@@ -183,7 +202,8 @@ listen("ai-chat", ({ payload }) => {
   if (!answering) return;
   if (payload.kind === "token") {
     answering.classList.remove("thinking");
-    answering.textContent += payload.text;
+    answerRaw += payload.text;
+    answering.textContent = norkaClean(answerRaw);
     $("messages").scrollTop = $("messages").scrollHeight;
   }
   if (payload.kind === "done") finishAnswer("done", "");

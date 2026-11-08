@@ -98,5 +98,15 @@
   "chat_not_running": "Silnik Norki nie działa. Otwórz Pomocnika Norka.",
   "chat_placeholder": "Zapytaj o coś Norkę…",
   "chat_hello": "Cześć! Jestem Norka. Pytaj o wszystko w sprawie komputera 💜",
-  "chat_error": "Norka się pogubiła: %1"
+  "chat_error": "Norka się pogubiła: %1",
+  "run_terminal": "Otwórz terminal",
+  "run_claude": "Uruchom Claude w terminalu",
+  "run_browser": "Otwórz przeglądarkę",
+  "run_files": "Otwórz pliki",
+  "run_settings": "Otwórz ustawienia",
+  "run_center": "Otwórz Norka Center",
+  "run_update": "Zaktualizuj system",
+  "run_started": "Uruchomiono",
+  "run_failed": "Nie udało się uruchomić: %1",
+  "run_no_button": "Tego nie mogę sama uruchomić. Poszukaj w menu pod klawiszem Meta."
 }

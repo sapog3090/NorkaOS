@@ -33,6 +33,14 @@ for pkg in linux-cachyos linux-cachyos-headers linux-cachyos-nvidia-open; do
   gpg --batch --verify "$GNUPGHOME/$file.sig" "$out/$file"
 done
 
+# Заголовкам ядра нужен pahole новее, чем в снимке Arch. В имени файла нет двоеточия из версии:
+# GitHub Releases его заменяет, и pacman не нашёл бы файл. Версию pacman берёт из самого пакета
+pahole_src='pahole-1%3A1.32-2-x86_64.pkg.tar.zst'
+pahole_out='pahole-1.32-2-x86_64.pkg.tar.zst'
+curl -fsSL --retry 3 -o "$out/$pahole_out" "$cachyos_mirror/$pahole_src"
+curl -fsSL --retry 3 -o "$GNUPGHOME/$pahole_out.sig" "$cachyos_mirror/$pahole_src.sig"
+gpg --batch --verify "$GNUPGHOME/$pahole_out.sig" "$out/$pahole_out"
+
 GNUPGHOME="$(mktemp -d)"
 gpg --batch --import <<<"$NORKA_SIGNING_KEY"
 fpr="$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/{print $10; exit}')"

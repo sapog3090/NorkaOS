@@ -266,6 +266,7 @@ fn main() {
             ai::ai_delete,
             ai::ai_refresh_prompt,
             ai::ai_chat,
+            ai::ai_run,
             ai::ai_default_model,
             ai::ai_set_default_model,
             jokes,

@@ -125,6 +125,7 @@ body.helper-mode nav { display: none; }
 .msg.norka { align-self: flex-start; background: var(--card); border-bottom-left-radius: 4px; }
 .msg.norka::before { content: "🐀 "; }
 .msg.error { align-self: center; background: #3a1f2b; color: #ffc2d1; font-size: 13px; }
+.msg-action { align-self: flex-start; }
 .msg.thinking::after { content: "…"; animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity: .2; } }
 #chat-form { display: flex; gap: 8px; }
