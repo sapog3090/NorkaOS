@@ -1,3 +1,11 @@
+# NorkaOS / RealityOS
+
+**RealityOS is the rebrand of NorkaOS**, an Arch Linux–based desktop distribution. The Dusk preview includes KDE Plasma by default, an optional RealityWM session, a refreshed offline installer, and a Plymouth splash featuring the infinity mark.
+
+See [Releases](https://github.com/sapog3090/NorkaOS/releases) for preview builds. Check the ISO against its accompanying SHA256SUMS file. BIOS and UEFI boot entries and the live filesystem were inspected. End-to-end installation and migration from an existing NorkaOS system are still pending.
+
+---
+
 # NorkaOS
 
 Уютный фурри-дистрибутив Linux на основе Arch. Его маскот — крыс Норка: он живёт на рабочем столе. Цель — красивая и быстрая система на замену Windows, без телеметрии и без 18+.
